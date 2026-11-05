@@ -23,7 +23,7 @@
 - Build with `npm run build`; preview with `npm run preview`.
 - Run tests with `npm test`; use `npm run test:unit` for unit tests.
 - Run the API separately from its `activity-bookings-express` project folder.
-- The repository has dependencies and scripts, but no application source yet.
+- The repository has a minimal React application foundation and existing package scripts.
 - Check existing files before scaffolding or changing project structure.
 
 ## Folder Structure
@@ -31,12 +31,15 @@
 ```text
 .
 ├── .github/                 # Agent definitions and skills
+├── src/                     # React application, API client, and tests
 ├── project/                 # Briefing, requirements, architecture, and specifications
 │   ├── PRD.md
 │   ├── ADD.md
 │   ├── briefing.md
 │   └── specs/                 # Feature specifications
 ├── activitybookings-cli.briefing.md
+├── index.html               # Vite application entry document
+├── .env.example             # Example API URL configuration
 ├── package.json             # Existing dependencies and scripts
 ├── README.md
 └── AGENTS.md

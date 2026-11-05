@@ -25,7 +25,7 @@ reviewing bookings through the external Activity Bookings demo API.
 - **Build:** `npm run build`; preview the build with `npm run preview`.
 - **Tests:** `npm test` runs Vitest with jsdom; `npm run test:unit` runs Vitest.
 - Run the API separately from its `activity-bookings-express` project folder.
-- The repository has package scripts and dependencies, but no application source yet.
+- The repository has package scripts and dependencies, plus a minimal React application foundation.
 
 ## Systems Architecture
 
@@ -71,7 +71,8 @@ payment integration, state-management framework, or other packages without a req
 - **Decision:** Build a JavaScript React browser client with the repository's existing Vite setup.
 - **Status:** Accepted
 - **Context:** The repository contains React, Vite, test dependencies, and working package scripts,
-  but no application source. Its product brief identifies this as a demo client.
+  and now includes a minimal application foundation. Its product brief identifies this as a demo
+  client.
 - **Consequences:** Implement the UI in the existing stack. Do not scaffold another app or add
   dependencies without a demonstrated need.
 
