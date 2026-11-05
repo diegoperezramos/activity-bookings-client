@@ -1,7 +1,7 @@
 # Agents Instructions
 
 - **{Root_Folder}**: {Root folder for the project and agents.}
-- **{Agents_Folder}**: {Folder for agent-related files.}
+- **{Agents_Folder}**: `.github`
 - **{Agents_file}**: {Main instructions file for agents.}
 - **{Project_Folder}**: {Folder for project-related files.}
 
@@ -17,7 +17,7 @@
 
 - **Language**: {language and version}
 - **Framework**: {framework and version}
-- **Database**: {database}
+- **API/Backend**: {external API or backend, if applicable}
 - **Security**: {security strategy}
 - **Testing**: {testing framework }
 - **Logging**: {logging tool }
@@ -42,7 +42,7 @@
 ├── {Agents_file}            # This file with instructions for AI agents
 ├── {Agents_Folder}/         # Agent definitions, prompts, instructions, and skills
 │   ├── agents/              # Specific agent definitions
-│   ├── prompts/             # Reusable prompts directory
+│   ├── instructions/        # File-specific instructions, if used
 │   └── skills/              # Custom agent skills
 ├── {Project_Folder}/        # Project related files (specs, plans, etc)
 │   ├── briefing.md          # Concise project summary
@@ -52,8 +52,8 @@
 │   └── specs/               # Specifications and plans
 ├── CHANGELOG.md             # Project history and updates
 ├── README.md                # Human friendly project overview
-├── src/                     # Source code folder
-├── tests/                   # Test files
+├── src/                     # Application source, if applicable
+├── tests/                   # Tests, if stored separately
 └── other_files/             # Other relevant files and folders
 ```
 

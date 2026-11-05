@@ -1,5 +1,5 @@
 # Short name Specification
-- **Type**: {feat/bug/chore}
+- **Type**: {feat/fix/chore}
 - **Status**: Draft{Draft, Planned, Coded, Verified, Released} 
 
 ## Problem Description
@@ -20,9 +20,9 @@
 
 {Data models, business logic, rules, etc.}
 
-### Persistence
+### Data and API interactions
 
-{Database, file storage, remote service, etc.}
+{API calls and client-side storage, if applicable; do not specify backend internals.}
 
 ## Acceptance Criteria
 

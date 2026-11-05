@@ -14,7 +14,9 @@ The goal is keep the default branch up to date with the latest changes.
 
 ## Context
 
-Run the script at [merge.sh](./merge.sh) to perform the merge operation.
+Run [merge.sh](./merge.sh) with Bash (for example, Git Bash on Windows) only
+after confirming the current branch, target default branch, remote, and clean
+working tree. If Bash is unavailable, use equivalent Git commands.
 
 ## Output
 

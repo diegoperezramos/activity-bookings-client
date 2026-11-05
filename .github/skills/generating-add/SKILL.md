@@ -1,14 +1,15 @@
 ---
 name: generating-add
 description: "Generates an Architecture Design Document (ADD) and an AGENTS.md for software projects. To be used when designing a product architecture and agents instructions."
---- 
+---
 # Generating an ADD
 
 To generate an Architecture Design Document (ADD), follow these steps:
 
 ## Context
 
-Use the provided context [PRD](../../../project/PRD.md), or current documentation files.
+Use `project/PRD.md` if it exists, the project briefings, current documentation,
+and the Activity Bookings API contract.
 
 ### ADD and AGENTS output templates
 
@@ -32,6 +33,11 @@ Read and respect the current [AGENTS.md](../../../AGENTS.md) file if it exists.
   - Ensure each section is filled out with relevant information.
   - Keep the document concise, aiming for clarity and brevity.
   - Put a TOC at the start of the document.
+  - Describe the client and its boundary with the external Activity Bookings API.
+  - Treat the API README and endpoint specifications as authoritative.
+  - Do not design or change the backend, its persistence, or payment gateway.
+  - Document JWT handling without inventing endpoints or token behavior.
+  - Keep the architecture proportionate to a demo client, not a production platform.
 
 ### Step 3: Drafting the AGENTS.md
 

@@ -9,7 +9,7 @@
 ### Tech Stack
 - **Language**: {language and version}
 - **Framework**: {framework and version}
-- **Database**: {database}
+- **API/Backend**: {external API or backend, if applicable}
 - **Security**: {security strategy}
 - **Testing**: {testing framework }
 - **Logging**: {logging tool }
@@ -28,7 +28,8 @@
 ```text
 .                         # Project root  
 ├── AGENTS.md             # This file with instructions for AI agents
-├── .codex/               # Agent definitions, prompts, instructions, and skills
+├── .github/              # Repository agent customizations
+|   ├── agents/           # Custom agent definitions
 |   └── skills/           # Custom agent skills
 ├── project/              # Project context and design documents
 |   ├── briefing.md       # Concise project summary
@@ -44,7 +45,7 @@
 ```
 
 ## Environment
-- This is a windows environment using git bash terminal. 
+- Development environment: Windows with PowerShell.
 - Default git branch is `main` unless specified otherwise.
 - Mind the available **agent skills** when performing tasks.
 

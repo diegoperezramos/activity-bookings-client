@@ -19,7 +19,7 @@ Do not write any code or tests, just the specification.
 
 ## Context
 
-- [Product Requirements Document](../../../project/PRD.md)
+- `project/PRD.md`, if it exists.
 
 The feature, bug correction, or enhancement must be provided in the input.
 
@@ -27,8 +27,11 @@ If not, ask for it before proceeding.
 
 Types of specifications to generate include:
 - New or current feature : `feat`
-- Bug correction : `bug`
+- Bug correction : `fix`
 - Enhancement or refactor : `chore`
+
+Specify client behavior and its interaction with the API. Treat the API README
+and endpoint specifications as the contract; do not invent backend behavior.
 
 ### Specification output template
 
@@ -37,12 +40,14 @@ Read and follow the specific [spec template](spec.md) to generate the document.
 ## Steps to follow:
 
 ### Step 1: Capture inputs:
-  - [ ] Confirm feat/bug/chore to specify; if missing, ask.
+  - [ ] Confirm feat/fix/chore to specify; if missing, ask.
   - [ ] Draft the issue title from the request; if unclear, ask.
 ### Step 2: Review PRD (if applicable):
-  - [ ] Check if the feature, bug correction, or enhancement is already in PRD.
+  - [ ] If a PRD exists, check whether it already covers the change.
   - [ ] If it is, use that information to help you write the specification.
-  - [ ] If not, update the PRD documentation with it.
+  - [ ] If it does not, confirm any PRD scope change with the user; do not silently
+        expand product scope or create a missing PRD as a side effect.
+  - [ ] If no PRD exists, use the project briefings and API contract as context.
 ### Step 3: Define the Problem: 
   - [ ] Clearly outline the problem that we aim to solve.
 ### Step 4: List User Stories: 
@@ -66,5 +71,5 @@ Read and follow the specific [spec template](spec.md) to generate the document.
 
 ## Output Checklist
 
-- [ ] A specification markdown file named `project/specs/short-name.spec.md`.
+- [ ] A specification markdown file named `project/specs/<spec-slug-id>.spec.md`.
 - [ ] The PRD requirements status must be updated if needed.

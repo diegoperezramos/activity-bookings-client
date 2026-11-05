@@ -1,6 +1,6 @@
 ---
 name: base
-description: Creates the base foundation for the agents's workflow. This prompt is used to set up the initial context and instructions for the agent.
+description: Creates the base foundation for the agents's workflow. This skill sets up the initial project context and agent instructions.
 user-invocable: true
 disable-model-invocation: true
 ---
@@ -26,11 +26,9 @@ Generate or update the project briefing document.
 
 ### Step 1: Define paths and folders
 
-- [ ] Ask the user to confirm or set the following paths:
-  - {Root_Folder}: The root folder for the project and agents.
-  - {Agents_Folder}: The folder where agent-related files will be stored.
-  - {Project_Folder}: The folder where project-related file will be stored.
-  - {Agents_file}: The main instructions file for agent.
+- [ ] Use the paths in the current `AGENTS.md` and `blueprint.md` as defaults.
+- [ ] Ask only if a required path is missing or conflicts with the user's request.
+- [ ] Keep project documentation under `project/` and agent customizations under `.github/`.
 
 ### Step 2: Generate or update the AGENTS.md file
 
@@ -38,14 +36,15 @@ Generate or update the project briefing document.
 - [ ] Create or update the `{Agents_file}` with:
   - A brief overview of the project and its goals.
   - Instructions for agents on how to use the provided context and documentation.
-  - Guidelines for comunication, behavior, and collaboration among agents.
-  - Keep it under 100 sentences, with each sentence less tha 100 characters.
+  - Guidelines for communication, behavior, and collaboration among agents.
+  - Verify technical details against the repository; do not copy template assumptions.
+  - Keep it under 100 sentences, with each sentence less than 100 characters.
 
 ### Step 3: Generate or update the briefing document
 - [ ] Create or update the briefing document at `{Project_Folder}/briefing.md` with:
   - A summary of the project, its objectives, and key information.
-  - Sacrifice grammatical correctness for brevity and clarity.
-  - Keep it under 25 sentences, with each sentence less tha 80 characters.
+  - Keep it concise and clear without sacrificing grammatical correctness.
+  - Keep it under 25 sentences, with each sentence less than 80 characters.
 
 ## Output checklist
 

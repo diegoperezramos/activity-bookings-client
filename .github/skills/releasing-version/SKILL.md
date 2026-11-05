@@ -11,6 +11,8 @@ Automate the process of managing releases, including:
   - and handling versioning.
 
 Use terminal git commands as needed.
+This repository's package is currently private. Do not publish it to a package
+registry. Confirm the intended release/versioning scheme before preparing a release.
 
 ## Step 1: Update Documentation
 
@@ -22,12 +24,13 @@ Use terminal git commands as needed.
 
 ## Step 2: Generate Changelog
 
-- [ ] Commit all pending changes grouping them by type of change.
+- [ ] Summarize relevant changes from commit history; do not commit pending work automatically.
 - [ ] Use [Semantic Versioning (SemVer)](./sem-ver.md) principles.
-- [ ] [CHANGELOG.md](../../..//CHANGELOG.md) : Add entries to based on commit history.
+- [ ] Create or update `CHANGELOG.md` only if a changelog is part of the requested release.
+  - Never include unrelated pending changes.
 
 ## Step 3: Versioning
 
-- [ ] If there is an issue/ticket id in the context, commit with `Close #ID`.
-- [ ] Merge it into default branch.
-- [ ] Generate a git tag for the new version.
+- [ ] Update `package.json` only if a release version is requested.
+- [ ] Commit, merge into the default branch, or create a tag only when explicitly requested.
+- [ ] If an issue/ticket ID is provided, include `Close #ID` only in the requested commit or PR.

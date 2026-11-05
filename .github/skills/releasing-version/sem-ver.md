@@ -1,8 +1,9 @@
 # Semantic Versioning (SemVer)
 
-A versioning scheme that uses a 3-part number format: MAJOR.MINOR.PATCH. 
+A versioning scheme that uses a 3-part number format: MAJOR.MINOR.PATCH.
+Use it only when this project has a requested release/versioning scheme.
 
-- **MAJOR** incompatible API changes.
+- **MAJOR** incompatible changes to a released product or its public contracts.
 - **MINOR** added functionality in a backwards-compatible manner.
 - **PATCH** made backwards-compatible bug fixes or improvements.
 

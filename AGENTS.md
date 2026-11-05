@@ -1,7 +1,7 @@
 # Agents Instructions
 
 - **Root folder**: `.`
-- **Agents folder**: `.agents`
+- **Agents folder**: `.github`
 - **Agents file**: `AGENTS.md`
 - **Project folder**: `project`
 
@@ -53,7 +53,8 @@ with `npm run dev`.
 ```text
 .                                  # Project root
 ├── AGENTS.md                      # Instructions for AI agents
-├── .agents/
+├── .github/
+│   ├── agents/                    # Custom agent definitions
 │   └── skills/
 │       └── base/                  # Agent workflow skill and templates
 ├── project/

@@ -11,8 +11,9 @@ The plan will be a set of ordered steps, each with specific tasks to complete.
 
 ## Context
 
-- The Specification file at project/specs/?short-name.spec.md.
-- [Architectural Design Document](../../../project/ADD.md)
+- The specification file at `project/specs/<spec-slug-id>.spec.md`.
+- `project/ADD.md`, if it exists.
+- Existing source files, `package.json`, project instructions, and the API contract.
 
 ## Steps to follow:
 
@@ -20,6 +21,8 @@ The plan will be a set of ordered steps, each with specific tasks to complete.
  - [ ] Understand the specification requirements.
  - [ ] Consider the architecture and design constraints from the ADD.
  - [ ] Choose the simplest viable approach to implement the spec.
+ - [ ] Follow the established JavaScript, React, Vite, and Vitest patterns.
+ - [ ] Keep changes in the client; do not plan undocumented backend changes.
 ### Step 2: Decompose the implementation in steps.
  - [ ] Break down the implementation into 3 to 9 steps 
  - [ ] Ensure each step is an ordered logical unit of work.
@@ -28,12 +31,12 @@ The plan will be a set of ordered steps, each with specific tasks to complete.
  - [ ] Ensure tasks are clear and actionable.
 ### Step 4: Write the implementation plan.
  - [ ] Follow the format in the [Implementation Plan template](plan.md).
- - [ ] Write the plan to a markdown file at `project/specs/short-name.plan.md`.
+ - [ ] Write the plan to `project/specs/<spec-slug-id>.plan.md`.
 ### Step 5: Review and finalize the plan.
  - [ ] Ensure the plan is comprehensive and feasible.
  - [ ] Mark the specification status as "Planned" at the top of the spec file.
 
 ## Output Checklist
 
-- [ ] A detailed implementation plan at `project/specs/short-name.plan.md`.
+- [ ] A detailed implementation plan at `project/specs/<spec-slug-id>.plan.md`.
 - [ ] The specification status updated to "Planned" in the spec file.
