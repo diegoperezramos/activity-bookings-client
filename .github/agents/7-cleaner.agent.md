@@ -4,11 +4,6 @@ description: Simplifies and refines implementation for clarity, consistency, and
 argument-hint: The current branch or latest commit to clean up
 model: Auto (copilot)
 tools: ['vscode', 'execute', 'read', 'agent', 'edit', 'search', 'web', 'github/*', 'todo']
-handoffs: 
-  - label: Document and Release
-    agent: DevOps
-    prompt: write documentation and release the implementation
-    send: true
 user-invocable: false
 disable-model-invocation: true
 ---

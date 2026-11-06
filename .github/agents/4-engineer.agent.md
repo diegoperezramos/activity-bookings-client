@@ -4,15 +4,6 @@ description: Creates the environment and detailed implementation plan for specs.
 argument-hint: Provide a specification file to start the planning.
 model: Auto (copilot)
 tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
-handoffs:
-  - label: Create a git branch 
-    agent: Engineer
-    prompt: Create a git branch based on the spec {type}/{short-name} 
-    send: true
-  - label: Write the Code
-    agent: Coder
-    prompt: Write code to implement the plan
-    send: true
 user-invocable: false
 disable-model-invocation: true
 ---

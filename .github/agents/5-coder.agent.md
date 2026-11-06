@@ -4,11 +4,6 @@ description: Writes code to implement the plan, following skilled best practices
 argument-hint: Provide the plan file with steps and tasks to start coding
 model: Auto (copilot)
 tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
-handoffs: 
-  - label: Verify Implementation
-    agent: Tester
-    prompt: write and run tests to verify the implementation
-    send: true
 user-invocable: false
 disable-model-invocation: true
 ---
