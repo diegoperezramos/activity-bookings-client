@@ -1,6 +1,6 @@
 # Activity Discovery Specification
 - **Type**: feat
-- **Status**: Draft
+- **Status**: Released
 
 ## Problem Description
 
@@ -27,9 +27,9 @@ Use `GET /activities` to retrieve activities and `GET /activities/:id` to retrie
 
 ## Acceptance Criteria
 
-- [ ] WHEN a user opens the activity-browsing view, THE Activity Bookings Client SHALL request `GET /activities`.
-- [ ] WHEN `GET /activities` returns activities, THE Activity Bookings Client SHALL present the returned activities for browsing.
-- [ ] WHEN a user selects an activity, THE Activity Bookings Client SHALL request `GET /activities/:id` for that activity.
-- [ ] WHEN `GET /activities/:id` returns an activity, THE Activity Bookings Client SHALL show its name, date, duration, location, price, and participant limits.
-- [ ] THE Activity Bookings Client SHALL allow users to browse activities and view activity details without registration or authentication.
-- [ ] THE Activity Bookings Client SHALL make no backend changes as part of this feature.
+- [x] WHEN a user opens the activity-browsing view, THE Activity Bookings Client SHALL request `GET /activities`.
+- [x] WHEN `GET /activities` returns activities, THE Activity Bookings Client SHALL present the returned activities for browsing.
+- [x] WHEN a user selects an activity, THE Activity Bookings Client SHALL request `GET /activities/:id` for that activity.
+- [x] WHEN `GET /activities/:id` returns an activity, THE Activity Bookings Client SHALL show its name, date, duration, location, price, and participant limits.
+- [x] THE Activity Bookings Client SHALL allow users to browse activities and view activity details without registration or authentication.
+- [x] THE Activity Bookings Client SHALL make no backend changes as part of this feature.

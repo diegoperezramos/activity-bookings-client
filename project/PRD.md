@@ -12,7 +12,7 @@ The client may be a web or terminal application; the current repository manifest
 
 ### FR1 Browse activities
 - Users can discover scheduled activities and view each activity's name, date, duration, location, price, and participant limits.
-- **Status**: NotStarted
+- **Status**: Implemented
 
 ### FR2 Register and log in
 - Users can register through `POST /users` with email, username, password, and `termsAccepted`, and log in through `POST /login` with email and password. Users then use the returned JWT for protected requests.

@@ -2,13 +2,14 @@
 
 ## Project Overview
 - Activity Bookings Client is a React web client for the demo Activity Bookings API.
-- It supports activity discovery, account access, bookings, and booking-status review.
+- FR1 activity discovery is implemented; account access and bookings remain planned.
 - The client is for training and demos, not production use.
 
 ## Technical Implementation
 - **Language:** JavaScript with ES modules.
 - **Framework:** React 19 and Vite 8.
 - **API:** External Activity Bookings API at `http://localhost:3000` during local development.
+- **Configuration:** Set `VITE_API_URL`; it defaults to `http://localhost:3000`.
 - **Security:** Use the API's JWT for protected booking requests.
 - **Testing:** Vitest, jsdom, and React Testing Library.
 - **Logging:** Use browser `console` methods when needed; add no logging package.
@@ -31,16 +32,21 @@
 ```text
 .
 ├── .github/                 # Agent definitions and skills
-├── src/                     # React application, API client, and tests
+├── src/                     # React application and tests
+│   └── api/                 # Shared API client and activity requests
 ├── project/                 # Briefing, requirements, architecture, and specifications
 │   ├── PRD.md
 │   ├── ADD.md
 │   ├── briefing.md
-│   └── specs/                 # Feature specifications
+│   ├── plans/                # Optional implementation plans
+│   └── specs/                # Feature specs and their implementation plans
+│       ├── feat-activity-discovery.spec.md
+│       └── feat-activity-discovery.plan.md
 ├── activitybookings-cli.briefing.md
 ├── index.html               # Vite application entry document
 ├── .env.example             # Example API URL configuration
-├── package.json             # Existing dependencies and scripts
+├── package.json             # Dependencies, scripts, and version
+├── package-lock.json        # Locked dependency and package metadata
 ├── README.md
 └── AGENTS.md
 ```
