@@ -39,7 +39,8 @@ function getAuthenticationErrorMessage(error) {
 function App() {
   const { accessToken, setAccessToken } = useAuth();
   const [activities, setActivities] = useState([]);
-  const [listStatus, setListStatus] = useState('loading');
+  const [listStatus, setListStatus] = useState('idle');
+  const [listAttempt, setListAttempt] = useState(0);
   const [isReviewingBookings, setIsReviewingBookings] = useState(false);
   const [bookings, setBookings] = useState([]);
   const [bookingsStatus, setBookingsStatus] = useState('idle');
@@ -55,6 +56,7 @@ function App() {
   const [bookingStatus, setBookingStatus] = useState('idle');
   const [bookingResponse, setBookingResponse] = useState(null);
   const [bookingError, setBookingError] = useState(null);
+  const authPendingRef = useRef(false);
   const bookingPendingRef = useRef(false);
   const participantCount = Number(bookingParticipants);
   const hasValidParticipants = bookingParticipants !== ''
@@ -97,7 +99,7 @@ function App() {
 
   async function submitAuthentication(event) {
     event.preventDefault();
-    if (authStatus === 'pending') {
+    if (authPendingRef.current) {
       return;
     }
 
@@ -108,6 +110,7 @@ function App() {
       return;
     }
 
+    authPendingRef.current = true;
     setAuthStatus('pending');
     setAuthMessage('');
     try {
@@ -125,6 +128,8 @@ function App() {
     } catch (error) {
       setAuthStatus('error');
       setAuthMessage(getAuthenticationErrorMessage(error));
+    } finally {
+      authPendingRef.current = false;
     }
   }
 
@@ -134,26 +139,37 @@ function App() {
     setAuthMessage('');
   }
 
-  async function loadActivities() {
-    setListStatus('loading');
-    try {
-      const result = await getActivities();
-      if (!Array.isArray(result)) {
-        throw new Error('The activities response must be a list.');
-      }
-      setActivities(result);
-      setListStatus('loaded');
-    } catch {
-      setListStatus('error');
+  useEffect(() => {
+    if (!accessToken) {
+      setListStatus('idle');
+      return undefined;
     }
-  }
+
+    let active = true;
+    setListStatus('loading');
+    getActivities()
+      .then((result) => {
+        if (!Array.isArray(result)) {
+          throw new Error('The activities response must be a list.');
+        }
+        if (active) {
+          setActivities(result);
+          setListStatus('loaded');
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setListStatus('error');
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [accessToken, listAttempt]);
 
   useEffect(() => {
-    loadActivities();
-  }, []);
-
-  useEffect(() => {
-    if (selectedId === null) {
+    if (!accessToken || selectedId === null) {
       return undefined;
     }
 
@@ -177,7 +193,7 @@ function App() {
     return () => {
       active = false;
     };
-  }, [selectedId, detailAttempt]);
+  }, [accessToken, selectedId, detailAttempt]);
 
   useEffect(() => {
     if (!isReviewingBookings || !accessToken) {
@@ -234,89 +250,118 @@ function App() {
           <span className="brand-mark" aria-hidden="true">A</span>
           <span>Activity Bookings</span>
         </a>
-        <button className="text-button header-action" type="button" onClick={openBookingReview}>
-          Review bookings
-        </button>
+        {accessToken && (
+          <nav className="main-navigation" aria-label="Main navigation">
+            <button
+              className="main-navigation__item"
+              type="button"
+              aria-current={!isReviewingBookings ? 'page' : undefined}
+              onClick={returnToActivities}
+            >
+              Activities
+            </button>
+            <button
+              className="main-navigation__item"
+              type="button"
+              aria-current={isReviewingBookings ? 'page' : undefined}
+              onClick={openBookingReview}
+            >
+              Review bookings
+            </button>
+          </nav>
+        )}
       </header>
 
-      <section className="page-content" aria-labelledby="app-title">
-        <div className="page-heading">
-          <p className="eyebrow">Plan something memorable</p>
-          <h1 id="app-title">{isReviewingBookings ? 'Your bookings' : 'Find your next activity'}</h1>
-          <p className="description">
-            {isReviewingBookings
-              ? 'Review your reservations and payment status.'
-              : 'Browse what is coming up and see the details.'}
-          </p>
-        </div>
-
-        <section className="account-section" aria-labelledby="account-title">
-          <div className="section-heading">
-            <h2 id="account-title">Your account</h2>
-            <div className="auth-switch" role="group" aria-label="Account action">
-              <button
-                type="button"
-                aria-pressed={authMode === 'login'}
-                disabled={authStatus === 'pending'}
-                onClick={() => changeAuthMode('login')}
-              >
-                Log in
-              </button>
-              <button
-                type="button"
-                aria-pressed={authMode === 'register'}
-                disabled={authStatus === 'pending'}
-                onClick={() => changeAuthMode('register')}
-              >
-                Create account
-              </button>
+      <div className="page-content">
+        {!accessToken ? (
+          <>
+            <div className="page-heading">
+              <p className="eyebrow">Plan something memorable</p>
+              <h1 id="app-title">Welcome to Activity Bookings</h1>
+              <p className="description">Sign in to explore activities and manage your bookings.</p>
             </div>
-          </div>
 
-          <form className="auth-form" aria-label={authMode === 'register' ? 'Registration' : 'Login'} onSubmit={submitAuthentication}>
-            <label className="auth-field">
-              <span>Email</span>
-              <input name="email" type="email" autoComplete="email" required />
-            </label>
-            {authMode === 'register' && (
-              <label className="auth-field">
-                <span>Username</span>
-                <input name="username" type="text" autoComplete="username" required />
-              </label>
-            )}
-            <label className="auth-field">
-              <span>Password</span>
-              <input
-                name="password"
-                type="password"
-                autoComplete={authMode === 'register' ? 'new-password' : 'current-password'}
-                required
-                minLength={authMode === 'register' ? 6 : undefined}
-              />
-            </label>
-            {authMode === 'register' && (
-              <label className="terms-field">
-                <input name="terms" type="checkbox" required />
-                <span>I accept the terms.</span>
-              </label>
-            )}
-            <button className="auth-submit" type="submit" disabled={authStatus === 'pending'}>
-              {authStatus === 'pending'
-                ? (authMode === 'register' ? 'Creating account...' : 'Signing in...')
-                : (authMode === 'register' ? 'Create account' : 'Log in')}
-            </button>
-          </form>
-          {authStatus === 'pending' && (
-            <p className="auth-feedback" role="status">{authMode === 'register' ? 'Creating account...' : 'Signing in...'}</p>
-          )}
-          {(authStatus === 'success' || authStatus === 'error') && (
-            <p className={`auth-feedback ${authStatus === 'error' ? 'auth-feedback--error' : ''}`} role={authStatus === 'error' ? 'alert' : 'status'}>
-              {authMessage}
-            </p>
-          )}
-        </section>
+            <section className="account-section" aria-labelledby="account-title">
+              <div className="section-heading">
+                <h2 id="account-title">Your account</h2>
+                <div className="auth-switch" role="group" aria-label="Account action">
+                  <button
+                    type="button"
+                    aria-pressed={authMode === 'login'}
+                    disabled={authStatus === 'pending'}
+                    onClick={() => changeAuthMode('login')}
+                  >
+                    Log in
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={authMode === 'register'}
+                    disabled={authStatus === 'pending'}
+                    onClick={() => changeAuthMode('register')}
+                  >
+                    Create account
+                  </button>
+                </div>
+              </div>
 
-        {isReviewingBookings ? (
+              <form className="auth-form" aria-label={authMode === 'register' ? 'Registration' : 'Login'} onSubmit={submitAuthentication}>
+                <label className="auth-field">
+                  <span>Email</span>
+                  <input name="email" type="email" autoComplete="email" required />
+                </label>
+                {authMode === 'register' && (
+                  <label className="auth-field">
+                    <span>Username</span>
+                    <input name="username" type="text" autoComplete="username" required />
+                  </label>
+                )}
+                <label className="auth-field">
+                  <span>Password</span>
+                  <input
+                    name="password"
+                    type="password"
+                    autoComplete={authMode === 'register' ? 'new-password' : 'current-password'}
+                    required
+                    minLength={authMode === 'register' ? 6 : undefined}
+                  />
+                </label>
+                {authMode === 'register' && (
+                  <label className="terms-field">
+                    <input name="terms" type="checkbox" required />
+                    <span>I accept the terms.</span>
+                  </label>
+                )}
+                <button className="auth-submit" type="submit" disabled={authStatus === 'pending'}>
+                  {authStatus === 'pending'
+                    ? (authMode === 'register' ? 'Creating account...' : 'Signing in...')
+                    : (authMode === 'register' ? 'Create account' : 'Log in')}
+                </button>
+              </form>
+              {authStatus === 'pending' && (
+                <p className="auth-feedback" role="status">{authMode === 'register' ? 'Creating account...' : 'Signing in...'}</p>
+              )}
+              {authStatus === 'error' && (
+                <p className="auth-feedback auth-feedback--error" role="alert">{authMessage}</p>
+              )}
+            </section>
+          </>
+        ) : (
+          <>
+            <div className="page-heading">
+              <p className="eyebrow">Plan something memorable</p>
+              <h1 id="app-title">
+                {isReviewingBookings
+                  ? 'Your bookings'
+                  : selectedId === null ? 'Find your next activity' : 'Activity details'}
+              </h1>
+              <p className="description">
+                {isReviewingBookings
+                  ? 'Review your reservations and payment status.'
+                  : selectedId === null ? 'Browse what is coming up and see the details.' : 'Review the activity and booking information.'}
+              </p>
+            </div>
+
+            {isReviewingBookings ? (
           <section className="booking-review-section" aria-label="Booking review">
             <button className="back-button" type="button" onClick={returnToActivities}>
               <span aria-hidden="true">&lt;-</span> All activities
@@ -339,10 +384,10 @@ function App() {
                 </button>
               </div>
             )}
-            {accessToken && bookingsStatus === 'loaded' && bookings.length === 0 && (
-              <p className="message">You have no bookings yet.</p>
+            {bookingsStatus === 'loaded' && bookings.length === 0 && (
+              <p className="message" role="status">You have no bookings yet.</p>
             )}
-            {accessToken && bookingsStatus === 'loaded' && bookings.length > 0 && (
+            {bookingsStatus === 'loaded' && bookings.length > 0 && (
               <ol className="booking-review-list" aria-label="Your bookings">
                 {bookings.map((booking) => (
                   <li className="booking-review-item" key={booking.id}>
@@ -373,7 +418,7 @@ function App() {
               </ol>
             )}
           </section>
-        ) : selectedId === null ? (
+            ) : selectedId === null ? (
           <section className="activity-section" aria-label="Activities">
             <div className="section-heading">
               <h2>Activities</h2>
@@ -390,13 +435,13 @@ function App() {
             {listStatus === 'error' && (
               <div className="message message--error" role="alert">
                 <p>Activities could not be loaded.</p>
-                <button className="text-button" type="button" onClick={loadActivities}>
+                <button className="text-button" type="button" onClick={() => setListAttempt((attempt) => attempt + 1)}>
                   Try again
                 </button>
               </div>
             )}
             {listStatus === 'loaded' && activities.length === 0 && (
-              <p className="message">There are no activities to show right now.</p>
+              <p className="message" role="status">There are no activities to show right now.</p>
             )}
             {listStatus === 'loaded' && activities.length > 0 && (
               <div className="activity-grid">
@@ -421,7 +466,7 @@ function App() {
               </div>
             )}
           </section>
-        ) : (
+            ) : (
           <section className="detail-section" aria-label="Activity details">
             <button
               className="back-button"
@@ -487,7 +532,9 @@ function App() {
                       type="submit"
                       disabled={!accessToken || !hasActivityId || !hasValidParticipants || bookingStatus === 'pending'}
                     >
-                      {bookingStatus === 'pending' ? 'Submitting...' : 'Book activity'}
+                      {bookingStatus === 'pending'
+                        ? 'Submitting...'
+                        : bookingStatus === 'error' ? 'Try booking again' : 'Book activity'}
                     </button>
                   </form>
                   {bookingStatus === 'pending' && (
@@ -517,8 +564,10 @@ function App() {
               </article>
             )}
           </section>
+            )}
+          </>
         )}
-      </section>
+      </div>
     </main>
   );
 }

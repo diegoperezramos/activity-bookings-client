@@ -115,7 +115,7 @@ demo; do not add a backend, payment integration, or state-management framework.
 ### ADR 4: Make authentication the client entry point
 - **Decision:** Present login first, offer registration as an alternative, and gate the activity and
   booking views behind successful authentication in the client.
-- **Status:** Proposed
+- **Status:** Accepted
 - **Context:** The current UI allows public activity browsing before authentication. The requested
   navigation refactor makes account access the entry point while retaining public activity endpoints.
 - **Consequences:** Successful login and registration both enter the same authenticated main area

@@ -14,6 +14,11 @@ function renderApp(children = <App />) {
   return render(<AuthProvider>{children}</AuthProvider>);
 }
 
+function renderAuthenticatedApp() {
+  renderApp(<><App /><AuthTokenSetter /></>);
+  fireEvent.click(screen.getByRole('button', { name: 'Set test token' }));
+}
+
 function AuthTokenProbe() {
   const { accessToken } = useAuth();
   return (
@@ -83,7 +88,11 @@ describe('activity discovery workflow', () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse([listedActivity]));
     vi.stubGlobal('fetch', fetchMock);
 
-    renderApp();
+    renderApp(<><App /><AuthTokenSetter /></>);
+    expect(screen.getByRole('form', { name: 'Login' })).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Main navigation' })).not.toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Set test token' }));
 
     expect(await screen.findByRole('button', { name: /Riverside Kayaking/ })).toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -94,13 +103,29 @@ describe('activity discovery workflow', () => {
     expect(new Headers(fetchMock.mock.calls[0][1].headers).has('Authorization')).toBe(false);
   });
 
+  it('shows a loading state while the public activity list is pending', async () => {
+    let completeList;
+    const listResponse = new Promise((resolve) => {
+      completeList = resolve;
+    });
+    const fetchMock = vi.fn().mockReturnValue(listResponse);
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderApp(<><App /><AuthTokenSetter /></>);
+    fireEvent.click(screen.getByRole('button', { name: 'Set test token' }));
+
+    expect(await screen.findByText('Loading activities...')).toBeInTheDocument();
+    completeList(jsonResponse([listedActivity]));
+    expect(await screen.findByRole('button', { name: /Riverside Kayaking/ })).toBeInTheDocument();
+  });
+
   it('requests selected details publicly, displays required fields, and returns to the list', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(jsonResponse([listedActivity]))
       .mockResolvedValueOnce(jsonResponse(detailedActivity));
     vi.stubGlobal('fetch', fetchMock);
 
-    renderApp();
+    renderAuthenticatedApp();
     fireEvent.click(await screen.findByRole('button', { name: /Riverside Kayaking/ }));
 
     const detailRegion = await screen.findByRole('region', { name: 'Activity details' });
@@ -126,13 +151,31 @@ describe('activity discovery workflow', () => {
     expect(screen.queryByRole('region', { name: 'Activity details' })).not.toBeInTheDocument();
   });
 
+  it('shows a loading state while selected activity details are pending', async () => {
+    let completeDetails;
+    const detailResponse = new Promise((resolve) => {
+      completeDetails = resolve;
+    });
+    const fetchMock = vi.fn((url) => (url.endsWith('/activities')
+      ? Promise.resolve(jsonResponse([listedActivity]))
+      : detailResponse));
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderAuthenticatedApp();
+    fireEvent.click(await screen.findByRole('button', { name: /Riverside Kayaking/ }));
+
+    expect(await screen.findByText('Loading activity details...')).toBeInTheDocument();
+    completeDetails(jsonResponse(detailedActivity));
+    expect(await screen.findByRole('heading', { name: 'Riverside Kayaking' })).toBeInTheDocument();
+  });
+
   it('shows a list request failure and retries successfully', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(jsonResponse(null, { ok: false, status: 503 }))
       .mockResolvedValueOnce(jsonResponse([listedActivity]));
     vi.stubGlobal('fetch', fetchMock);
 
-    renderApp();
+    renderAuthenticatedApp();
 
     fireEvent.click(await screen.findByRole('button', { name: 'Try again' }));
 
@@ -150,7 +193,7 @@ describe('activity discovery workflow', () => {
       .mockResolvedValueOnce(jsonResponse(detailedActivity));
     vi.stubGlobal('fetch', fetchMock);
 
-    renderApp();
+    renderAuthenticatedApp();
     fireEvent.click(await screen.findByRole('button', { name: /Riverside Kayaking/ }));
     fireEvent.click(await screen.findByRole('button', { name: 'Try again' }));
 
@@ -180,15 +223,17 @@ describe('activity booking workflow', () => {
     maxParticipants: 12,
   };
 
-  it('does not expose booking controls before an activity is selected', async () => {
+  it('does not expose activity or booking screens before authentication', async () => {
     const fetchMock = vi.fn().mockResolvedValue(jsonResponse([listedActivity]));
     vi.stubGlobal('fetch', fetchMock);
 
     renderApp();
 
-    expect(await screen.findByRole('button', { name: /Riverside Kayaking/ })).toBeInTheDocument();
+    expect(screen.getByRole('form', { name: 'Login' })).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Activities' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Main navigation' })).not.toBeInTheDocument();
     expect(screen.queryByRole('form', { name: 'Book this activity' })).not.toBeInTheDocument();
-    expect(fetchMock.mock.calls.some(([url]) => url.endsWith('/bookings'))).toBe(false);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('requires authentication and a positive whole participant count', async () => {
@@ -210,6 +255,8 @@ describe('activity booking workflow', () => {
     expect(input).toHaveAttribute('step', '1');
     expect(submit).toBeDisabled();
 
+    fireEvent.change(input, { target: { value: '-1' } });
+    expect(submit).toBeDisabled();
     fireEvent.change(input, { target: { value: '0' } });
     expect(submit).toBeDisabled();
     fireEvent.change(input, { target: { value: '1.5' } });
@@ -218,7 +265,7 @@ describe('activity booking workflow', () => {
     expect(submit).toBeEnabled();
   });
 
-  it('requires sign-in before enabling or sending a booking', async () => {
+  it('does not send bookings from the unauthenticated account screen', async () => {
     const fetchMock = vi.fn((url) => Promise.resolve(
       url.endsWith('/activities')
         ? jsonResponse([listedActivity])
@@ -227,12 +274,8 @@ describe('activity booking workflow', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     renderApp();
-    fireEvent.click(await screen.findByRole('button', { name: /Riverside Kayaking/ }));
-
-    const input = await screen.findByLabelText('Participants');
-    expect(screen.getByText('Sign in to book this activity.')).toBeInTheDocument();
-    expect(input).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Book activity' })).toBeDisabled();
+    expect(screen.getByRole('form', { name: 'Login' })).toBeInTheDocument();
+    expect(screen.queryByRole('form', { name: 'Book this activity' })).not.toBeInTheDocument();
     expect(fetchMock.mock.calls.some(([url]) => url.endsWith('/bookings'))).toBe(false);
   });
 
@@ -277,15 +320,22 @@ describe('activity booking workflow', () => {
     expect(result.querySelector('pre').textContent).toBe(JSON.stringify(bookingResponse, null, 2));
   });
 
-  it('presents the API-reported rejection payload without replacing its wording', async () => {
+  it('presents the API-reported rejection and retries with the selected activity and count', async () => {
     const rejection = { message: 'Booking rejected', errors: ['Participants are unavailable'] };
-    const fetchMock = vi.fn((url) => Promise.resolve(
-      url.endsWith('/activities')
-        ? jsonResponse([listedActivity])
-        : url.endsWith('/activities/activity-1')
-          ? jsonResponse(detailedActivity)
-          : jsonResponse(rejection, { ok: false, status: 409 }),
-    ));
+    let bookingRequestCount = 0;
+    const success = { id: 'booking-2', paymentStatus: 'pending' };
+    const fetchMock = vi.fn((url) => {
+      if (url.endsWith('/activities')) {
+        return Promise.resolve(jsonResponse([listedActivity]));
+      }
+      if (url.endsWith('/activities/activity-1')) {
+        return Promise.resolve(jsonResponse(detailedActivity));
+      }
+      bookingRequestCount += 1;
+      return Promise.resolve(bookingRequestCount === 1
+        ? jsonResponse(rejection, { ok: false, status: 409 })
+        : jsonResponse(success));
+    });
     vi.stubGlobal('fetch', fetchMock);
 
     renderApp(<><App /><AuthTokenSetter /></>);
@@ -299,6 +349,21 @@ describe('activity booking workflow', () => {
     expect(alert).toHaveTextContent('"errors": [');
     expect(alert).toHaveTextContent('Participants are unavailable');
     expect(alert).not.toHaveTextContent('Booking failed');
+
+    const participants = screen.getByLabelText('Participants');
+    expect(participants).toHaveValue(2);
+    fireEvent.click(screen.getByRole('button', { name: 'Try booking again' }));
+
+    const result = await screen.findByRole('status', { name: 'Booking response' });
+    expect(result.querySelector('pre').textContent).toBe(JSON.stringify(success, null, 2));
+    expect(participants).toHaveValue(2);
+    expect(bookingRequestCount).toBe(2);
+    const bookingRequests = fetchMock.mock.calls.filter(([url]) => url.endsWith('/bookings'));
+    expect(bookingRequests).toHaveLength(2);
+    for (const [, options] of bookingRequests) {
+      expect(JSON.parse(options.body)).toEqual({ activityId: 'activity-1', participants: 2 });
+      expect(new Headers(options.headers).get('Authorization')).toBe('Bearer test-token');
+    }
   });
 
   it('shows neutral feedback when the booking request receives no API response', async () => {
@@ -335,11 +400,11 @@ describe('booking review workflow', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     renderApp();
-    fireEvent.click(screen.getByRole('button', { name: 'Review bookings' }));
 
-    expect(await screen.findByText('Sign in to review your bookings.')).toBeInTheDocument();
+    expect(screen.getByRole('form', { name: 'Login' })).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Main navigation' })).not.toBeInTheDocument();
     expect(fetchMock.mock.calls.some(([url]) => url.endsWith('/bookings'))).toBe(false);
-    expect(screen.getByRole('button', { name: /All activities/ })).toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('shows loading, then renders only verified fields in API order with literal statuses', async () => {
@@ -488,6 +553,37 @@ describe('booking review workflow', () => {
 });
 
 describe('authentication workflow', () => {
+  it('enters the authenticated shell after login and returns to the account screen on remount', async () => {
+    const fetchMock = vi.fn((url) => Promise.resolve(
+      url.endsWith('/login')
+        ? jsonResponse({ accessToken: 'memory-token' })
+        : jsonResponse([]),
+    ));
+    vi.stubGlobal('fetch', fetchMock);
+    const storageWrites = vi.spyOn(Storage.prototype, 'setItem');
+
+    const firstMount = renderApp();
+    expect(screen.getByRole('form', { name: 'Login' })).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Activities' })).not.toBeInTheDocument();
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    const form = screen.getByRole('form', { name: 'Login' });
+    fireEvent.change(within(form).getByLabelText('Email'), { target: { value: 'alex@example.com' } });
+    fireEvent.change(within(form).getByLabelText('Password'), { target: { value: 'password123' } });
+    fireEvent.click(within(form).getByRole('button', { name: 'Log in' }));
+
+    expect(await screen.findByRole('navigation', { name: 'Main navigation' })).toBeInTheDocument();
+    expect(await screen.findByText('There are no activities to show right now.')).toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([url]) => url.endsWith('/activities'))).toHaveLength(1);
+    expect(storageWrites).not.toHaveBeenCalled();
+
+    firstMount.unmount();
+    renderApp();
+    expect(screen.getByRole('form', { name: 'Login' })).toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([url]) => url.endsWith('/activities'))).toHaveLength(1);
+    expect(storageWrites).not.toHaveBeenCalled();
+  });
+
   it('requires terms for registration and shares the returned token with app consumers', async () => {
     let completeRegistration;
     const registrationResponse = new Promise((resolve) => {
@@ -511,7 +607,7 @@ describe('authentication workflow', () => {
     expect(password).toHaveAttribute('minlength', '6');
     expect(terms).toBeRequired();
     fireEvent.submit(form);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).not.toHaveBeenCalled();
 
     fireEvent.change(within(form).getByLabelText('Email'), { target: { value: 'alex@example.com' } });
     fireEvent.change(within(form).getByLabelText('Username'), { target: { value: 'alex' } });
@@ -533,16 +629,18 @@ describe('authentication workflow', () => {
     expect(within(accountActions).getByRole('button', { name: 'Create account' })).toBeDisabled();
 
     completeRegistration(jsonResponse({ accessToken: 'registration-token' }));
-    expect(await screen.findByText('Account created.')).toBeInTheDocument();
+    expect(await screen.findByRole('navigation', { name: 'Main navigation' })).toBeInTheDocument();
     expect(screen.getByLabelText('Available access token')).toHaveTextContent('registration-token');
   });
 
-  it('submits login credentials and shares the returned access token', async () => {
-    const fetchMock = vi.fn((url) => Promise.resolve(
-      url.endsWith('/activities')
-        ? jsonResponse([])
-        : jsonResponse({ accessToken: 'login-token' }),
-    ));
+  it('shows pending login feedback, prevents duplicate requests, and shares the returned access token', async () => {
+    let completeLogin;
+    const loginResponse = new Promise((resolve) => {
+      completeLogin = resolve;
+    });
+    const fetchMock = vi.fn((url) => (url.endsWith('/login')
+      ? loginResponse
+      : Promise.resolve(jsonResponse([]))));
     vi.stubGlobal('fetch', fetchMock);
 
     renderApp(<><App /><AuthTokenProbe /></>);
@@ -551,7 +649,13 @@ describe('authentication workflow', () => {
     fireEvent.change(within(form).getByLabelText('Password'), { target: { value: 'password123' } });
     fireEvent.click(within(form).getByRole('button', { name: 'Log in' }));
 
-    expect(await screen.findByText('You are signed in.')).toBeInTheDocument();
+    expect(await screen.findByText('Signing in...', { selector: 'p' })).toBeInTheDocument();
+    expect(within(form).getByRole('button', { name: 'Signing in...' })).toBeDisabled();
+    fireEvent.submit(form);
+    expect(fetchMock.mock.calls.filter(([url]) => url.endsWith('/login'))).toHaveLength(1);
+
+    completeLogin(jsonResponse({ accessToken: 'login-token' }));
+    expect(await screen.findByRole('navigation', { name: 'Main navigation' })).toBeInTheDocument();
     expect(screen.getByLabelText('Available access token')).toHaveTextContent('login-token');
     const [loginUrl, options] = fetchMock.mock.calls.find(([url]) => url.endsWith('/login'));
     expect(loginUrl).toBe(`${API_BASE_URL}/login`);
@@ -564,6 +668,33 @@ describe('authentication workflow', () => {
     const [protectedUrl, protectedOptions] = fetchMock.mock.calls.find(([url]) => url.endsWith('/protected-resource'));
     expect(protectedUrl).toBe(`${API_BASE_URL}/protected-resource`);
     expect(new Headers(protectedOptions.headers).get('Authorization')).toBe('Bearer login-token');
+  });
+
+  it('shows a login failure and allows corrected credentials to retry', async () => {
+    let loginRequestCount = 0;
+    const fetchMock = vi.fn((url) => {
+      if (url.endsWith('/activities')) {
+        return Promise.resolve(jsonResponse([]));
+      }
+      loginRequestCount += 1;
+      return Promise.resolve(loginRequestCount === 1
+        ? jsonResponse({ message: 'Invalid credentials' }, { ok: false, status: 401 })
+        : jsonResponse({ accessToken: 'retry-token' }));
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderApp();
+    const form = screen.getByRole('form', { name: 'Login' });
+    fireEvent.change(within(form).getByLabelText('Email'), { target: { value: 'alex@example.com' } });
+    fireEvent.change(within(form).getByLabelText('Password'), { target: { value: 'wrong-password' } });
+    fireEvent.click(within(form).getByRole('button', { name: 'Log in' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Invalid credentials');
+    fireEvent.change(within(form).getByLabelText('Password'), { target: { value: 'correct-password' } });
+    fireEvent.click(within(form).getByRole('button', { name: 'Log in' }));
+
+    expect(await screen.findByRole('navigation', { name: 'Main navigation' })).toBeInTheDocument();
+    expect(loginRequestCount).toBe(2);
   });
 
   it('shows API registration validation details when account creation is rejected', async () => {
