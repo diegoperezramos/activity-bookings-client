@@ -31,12 +31,12 @@ The plan will be a set of ordered steps, each with specific tasks to complete.
  - [ ] Ensure tasks are clear and actionable.
 ### Step 4: Write the implementation plan.
  - [ ] Follow the format in the [Implementation Plan template](plan.md).
- - [ ] Write the plan to `project/specs/<spec-slug-id>.plan.md`.
+ - [ ] Write the plan to `project/plans/<spec-slug-id>.plan.md`.
 ### Step 5: Review and finalize the plan.
  - [ ] Ensure the plan is comprehensive and feasible.
  - [ ] Mark the specification status as "Planned" at the top of the spec file.
 
 ## Output Checklist
 
-- [ ] A detailed implementation plan at `project/specs/<spec-slug-id>.plan.md`.
+- [ ] A detailed implementation plan at `project/plans/<spec-slug-id>.plan.md`.
 - [ ] The specification status updated to "Planned" in the spec file.
