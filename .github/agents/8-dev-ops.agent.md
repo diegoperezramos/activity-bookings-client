@@ -5,7 +5,7 @@ argument-hint: Provide the issue number or specification file to be released.
 model: Auto (copilot)
 tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'github/*', 'agent', 'todo']
 user-invocable: false
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # DevOps Agent

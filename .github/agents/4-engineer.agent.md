@@ -5,7 +5,7 @@ argument-hint: Provide a specification file to start the planning.
 model: Auto (copilot)
 tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
 user-invocable: false
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Engineer

@@ -5,7 +5,7 @@ argument-hint: Provide a PRD or explain a requirement to write the specification
 model: Copilot Fusion
 tools: ['read', 'edit', 'search', 'web', 'agent', 'todo','execute']
 user-invocable: false
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 # Product Owner
 

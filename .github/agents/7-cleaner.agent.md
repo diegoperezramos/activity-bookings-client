@@ -5,7 +5,7 @@ argument-hint: The current branch or latest commit to clean up
 model: Auto (copilot)
 tools: ['vscode', 'execute', 'read', 'agent', 'edit', 'search', 'web', 'github/*', 'todo']
 user-invocable: false
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 # Cleaner
 

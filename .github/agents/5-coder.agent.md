@@ -5,7 +5,7 @@ argument-hint: Provide the plan file with steps and tasks to start coding
 model: Auto (copilot)
 tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
 user-invocable: false
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 # Coder
 

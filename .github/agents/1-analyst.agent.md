@@ -5,7 +5,7 @@ argument-hint: Provide an idea, briefing document or the current project to star
 model: Copilot Fusion
 tools: ['vscode/askQuestions', 'read', 'execute','agent', 'edit', 'search', 'web', 'todo']
 user-invocable: false
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 # Analyst
 
