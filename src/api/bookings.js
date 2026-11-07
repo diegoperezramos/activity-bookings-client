@@ -8,3 +8,10 @@ export function createBooking({ activityId, participants, jwt }) {
     jwt,
   });
 }
+
+export function getBookings({ jwt }) {
+  return apiFetch('/bookings', {
+    method: 'GET',
+    jwt,
+  });
+}

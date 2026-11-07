@@ -325,6 +325,168 @@ describe('activity booking workflow', () => {
   });
 });
 
+describe('booking review workflow', () => {
+  function bookingsResponse(bookings, options) {
+    return jsonResponse(bookings, options);
+  }
+
+  it('requires sign-in without requesting bookings when opened unauthenticated', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse([]));
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderApp();
+    fireEvent.click(screen.getByRole('button', { name: 'Review bookings' }));
+
+    expect(await screen.findByText('Sign in to review your bookings.')).toBeInTheDocument();
+    expect(fetchMock.mock.calls.some(([url]) => url.endsWith('/bookings'))).toBe(false);
+    expect(screen.getByRole('button', { name: /All activities/ })).toBeInTheDocument();
+  });
+
+  it('shows loading, then renders only verified fields in API order with literal statuses', async () => {
+    let completeBookings;
+    const response = [
+      {
+        id: 'booking-2',
+        activityId: 'activity-2',
+        userId: 'private-user-2',
+        participants: 3,
+        createdAt: '2026-11-06T09:00:00.000Z',
+        paymentId: 'payment-2',
+        paymentStatus: 'Awaiting-CAPTURE',
+        activity: { name: 'Hidden activity name' },
+      },
+      {
+        id: 'booking-1',
+        activityId: 'activity-1',
+        userId: 'private-user-1',
+        participants: 1,
+        createdAt: '2026-11-05T09:00:00.000Z',
+        paymentStatus: 'settled_by_api',
+      },
+    ];
+    const pendingResponse = new Promise((resolve) => {
+      completeBookings = resolve;
+    });
+    const fetchMock = vi.fn((url) => (
+      url.endsWith('/activities')
+        ? Promise.resolve(jsonResponse([]))
+        : pendingResponse
+    ));
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderApp(<><App /><AuthTokenSetter /></>);
+    fireEvent.click(screen.getByRole('button', { name: 'Set test token' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Review bookings' }));
+
+    expect(await screen.findByText('Loading bookings...')).toBeInTheDocument();
+    const [bookingsUrl, options] = fetchMock.mock.calls.find(([url]) => url.endsWith('/bookings'));
+    expect(bookingsUrl).toBe(`${API_BASE_URL}/bookings`);
+    expect(options.method).toBe('GET');
+    expect(new Headers(options.headers).get('Authorization')).toBe('Bearer test-token');
+
+    completeBookings(bookingsResponse(response));
+
+    const list = await screen.findByRole('list', { name: 'Your bookings' });
+    const items = within(list).getAllByRole('listitem');
+    expect(items).toHaveLength(2);
+    expect(items[0]).toHaveTextContent('booking-2');
+    expect(items[0]).toHaveTextContent('Awaiting-CAPTURE');
+    expect(items[0]).toHaveTextContent('activity-2');
+    expect(items[0]).toHaveTextContent('3');
+    expect(items[0]).toHaveTextContent('2026-11-06T09:00:00.000Z');
+    expect(items[1]).toHaveTextContent('booking-1');
+    expect(items[1]).toHaveTextContent('settled_by_api');
+    expect(list.textContent.indexOf('booking-2')).toBeLessThan(list.textContent.indexOf('booking-1'));
+    expect(list).not.toHaveTextContent('private-user');
+    expect(list).not.toHaveTextContent('payment-2');
+    expect(list).not.toHaveTextContent('Hidden activity name');
+
+    fireEvent.click(screen.getByRole('button', { name: /All activities/ }));
+    expect(await screen.findByRole('heading', { name: 'Find your next activity' })).toBeInTheDocument();
+  });
+
+  it('shows an empty state for an empty response', async () => {
+    const fetchMock = vi.fn((url) => Promise.resolve(
+      url.endsWith('/activities') ? jsonResponse([]) : jsonResponse([]),
+    ));
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderApp(<><App /><AuthTokenSetter /></>);
+    fireEvent.click(screen.getByRole('button', { name: 'Set test token' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Review bookings' }));
+
+    expect(await screen.findByText('You have no bookings yet.')).toBeInTheDocument();
+  });
+
+  it('shows a neutral API error and retries successfully', async () => {
+    let bookingRequestCount = 0;
+    const response = [{
+      id: 'booking-1',
+      activityId: 'activity-1',
+      participants: 2,
+      createdAt: '2026-11-07T09:00:00.000Z',
+      paymentStatus: 'pending',
+    }];
+    const fetchMock = vi.fn((url) => {
+      if (url.endsWith('/activities')) {
+        return Promise.resolve(jsonResponse([]));
+      }
+      bookingRequestCount += 1;
+      return Promise.resolve(bookingRequestCount === 1
+        ? jsonResponse({ message: 'Sensitive API details' }, { ok: false, status: 503 })
+        : jsonResponse(response));
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderApp(<><App /><AuthTokenSetter /></>);
+    fireEvent.click(screen.getByRole('button', { name: 'Set test token' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Review bookings' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Bookings could not be loaded.');
+    expect(screen.getByRole('alert')).not.toHaveTextContent('Sensitive API details');
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(await screen.findByRole('list', { name: 'Your bookings' })).toHaveTextContent('booking-1');
+    expect(bookingRequestCount).toBe(2);
+  });
+
+  it('shows a neutral error when the network request fails', async () => {
+    let bookingRequestCount = 0;
+    const response = [{
+      id: 'booking-1',
+      activityId: 'activity-1',
+      participants: 2,
+      createdAt: '2026-11-07T09:00:00.000Z',
+      paymentStatus: 'pending',
+    }];
+    const fetchMock = vi.fn((url) => {
+      if (url.endsWith('/activities')) {
+        return Promise.resolve(jsonResponse([]));
+      }
+      bookingRequestCount += 1;
+      return bookingRequestCount === 1
+        ? Promise.reject(new TypeError('Failed to fetch'))
+        : Promise.resolve(jsonResponse(response));
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderApp(<><App /><AuthTokenSetter /></>);
+    fireEvent.click(screen.getByRole('button', { name: 'Set test token' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Review bookings' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Bookings could not be loaded.');
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(await screen.findByRole('list', { name: 'Your bookings' })).toHaveTextContent('booking-1');
+    expect(bookingRequestCount).toBe(2);
+    const bookingRequests = fetchMock.mock.calls.filter(([requestUrl]) => requestUrl.endsWith('/bookings'));
+    expect(bookingRequests).toHaveLength(2);
+    for (const [, options] of bookingRequests) {
+      expect(new Headers(options.headers).get('Authorization')).toBe('Bearer test-token');
+    }
+  });
+});
+
 describe('authentication workflow', () => {
   it('requires terms for registration and shares the returned token with app consumers', async () => {
     let completeRegistration;

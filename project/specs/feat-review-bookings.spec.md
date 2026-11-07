@@ -1,6 +1,6 @@
 # Review Bookings Specification
 - **Type**: feat
-- **Status**: Draft
+- **Status**: Released
 
 ## Problem Description
 
@@ -27,8 +27,8 @@ Use the authenticated user's JWT to call the JWT-protected `GET /bookings` endpo
 
 ## Acceptance Criteria
 
-- [ ] WHILE the user is authenticated WHEN they open the booking review THE Activity Bookings Client SHALL request `GET /bookings` with the user's JWT.
-- [ ] WHILE the user is not authenticated WHEN they open the booking review THE Activity Bookings Client SHALL require authentication before requesting `GET /bookings`.
-- [ ] WHEN the API returns bookings THE Activity Bookings Client SHALL display each returned booking and its payment status as reported by the API.
-- [ ] WHEN displaying returned bookings THE Activity Bookings Client SHALL NOT infer, relabel, or modify their reported payment statuses.
-- [ ] WHEN displaying returned bookings THE Activity Bookings Client SHALL NOT apply undocumented sorting or filtering.
+- [x] WHILE the user is authenticated WHEN they open the booking review THE Activity Bookings Client SHALL request `GET /bookings` with the user's JWT.
+- [x] WHILE the user is not authenticated WHEN they open the booking review THE Activity Bookings Client SHALL require authentication before requesting `GET /bookings`.
+- [x] WHEN the API returns bookings THE Activity Bookings Client SHALL display each returned booking and its payment status as reported by the API.
+- [x] WHEN displaying returned bookings THE Activity Bookings Client SHALL NOT infer, relabel, or modify their reported payment statuses.
+- [x] WHEN displaying returned bookings THE Activity Bookings Client SHALL NOT apply undocumented sorting or filtering.

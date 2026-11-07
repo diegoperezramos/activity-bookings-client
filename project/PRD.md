@@ -25,15 +25,15 @@ The client may be a web or terminal application; the current repository manifest
 
 ### FR4 Review bookings
 - Users can view their bookings and the payment status reported by the API.
-- **Status**: NotStarted
+- **Status**: Implemented
 
 ## Technical Requirements
 
 ### TR1 Use the client application stack
 - Implement the client in JavaScript with React and Vite, consistent with the repository's existing dependencies and scripts.
-- **Status**: InProgress
+- **Status**: Implemented
 
 ### TR2 Integrate with the external API
 - Use the Activity Bookings API as an external dependency and follow its verified endpoint behavior; do not change the backend or assume undocumented behavior.
-- Public activity discovery, account registration/login, and booking creation are integrated. Booking review remains pending under FR4.
-- **Status**: InProgress
+- Public activity discovery, account registration/login, booking creation, and booking review are integrated with the verified API contract.
+- **Status**: Implemented
