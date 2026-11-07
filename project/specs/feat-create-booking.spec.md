@@ -1,6 +1,6 @@
 # Create Activity Booking Specification
 - **Type**: feat
-- **Status**: Planned
+- **Status**: Verified
 
 ## Problem Description
 
@@ -27,8 +27,8 @@ Send `POST /bookings` with the selected `activityId`, the supplied `participants
 
 ## Acceptance Criteria
 
-- [ ] WHEN an authenticated user submits a booking THE Activity Bookings Client SHALL send `POST /bookings` with the selected `activityId`, the supplied `participants`, and the user's JWT.
-- [ ] THE Activity Bookings Client SHALL allow submission only when an activity is selected and at least one participant is supplied.
-- [ ] WHEN the API returns a booking result THE Activity Bookings Client SHALL present that result without assuming undocumented response fields.
-- [ ] WHEN the API reports a booking rejection or failure THE Activity Bookings Client SHALL present the reported result without inventing error wording.
-- [ ] THE Activity Bookings Client SHALL rely on the API's result for capacity validation and mock payment and SHALL NOT add payment rules.
+- [x] WHEN an authenticated user submits a booking THE Activity Bookings Client SHALL send `POST /bookings` with the selected `activityId`, the supplied `participants`, and the user's JWT.
+- [x] THE Activity Bookings Client SHALL allow submission only when an activity is selected and at least one participant is supplied.
+- [x] WHEN the API returns a booking result THE Activity Bookings Client SHALL present that result without assuming undocumented response fields.
+- [x] WHEN the API reports a booking rejection or failure THE Activity Bookings Client SHALL present the reported result without inventing error wording.
+- [x] THE Activity Bookings Client SHALL rely on the API's result for capacity validation and mock payment and SHALL NOT add payment rules.
