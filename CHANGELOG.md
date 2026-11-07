@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.0] - 2026-11-07
+
+### Added
+- Authenticated participant booking for a selected activity through `POST /bookings`.
+- Booking submission and API-reported success or error feedback, with no client-side capacity or payment rules.
+
 ## [0.2.0] - 2026-11-07
 
 ### Added
