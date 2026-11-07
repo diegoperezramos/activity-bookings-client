@@ -1,6 +1,8 @@
 # Login-First Client Experience Specification
 - **Type**: feat
-- **Status**: Draft
+- **Status**: Released
+
+Automated tests and the production build pass. The specified viewport, keyboard-flow, and measured-contrast checks remain unverified.
 
 ## Problem Description
 
@@ -28,12 +30,12 @@ Use the existing login and registration requests. Both successful responses prov
 
 ## Acceptance Criteria
 
-- [ ] WHEN no access token is held in memory THE Activity Bookings Client SHALL show the account screen with login as the entry point and registration as a distinct alternative, without exposing activity or booking screens.
-- [ ] WHILE login or registration is pending THE Activity Bookings Client SHALL show a loading state. WHEN login or registration succeeds THE Activity Bookings Client SHALL use the returned access token to enter the authenticated main area. WHEN either request fails THE Activity Bookings Client SHALL show the failure and allow the user to correct input or retry.
-- [ ] WHEN an authenticated user opens the activity list THE Activity Bookings Client SHALL request `GET /activities` without a JWT and provide visible loading, empty, and error states, with a retry path for a failed request.
-- [ ] WHEN an authenticated user selects an activity THE Activity Bookings Client SHALL request `GET /activities/:id` without a JWT and show a distinct detail screen with the returned activity data, loading and error states, and a retry path for a failed request. THE Activity Bookings Client SHALL provide a return path to the activity list.
-- [ ] WHEN an authenticated user submits a booking THE Activity Bookings Client SHALL accept only a positive whole participant count, submit the selected activity ID and count through authenticated `POST /bookings`, show a loading state while pending, present the API-reported result on success, and present the reported error with a retry path on failure without inventing capacity or payment outcomes.
-- [ ] WHEN an authenticated user opens booking review THE Activity Bookings Client SHALL request `GET /bookings` with the in-memory JWT and show returned bookings in API response order with payment statuses as reported, plus loading, empty, error, and retry states. THE Activity Bookings Client SHALL NOT infer capacity or payment rules.
-- [ ] WHEN the authenticated main area is shown THE Activity Bookings Client SHALL provide distinct activity list, activity detail, and booking review screens with navigation between them, and SHALL return to the account screen after a reload without restoring the access token.
+- [x] WHEN no access token is held in memory THE Activity Bookings Client SHALL show the account screen with login as the entry point and registration as a distinct alternative, without exposing activity or booking screens.
+- [x] WHILE login or registration is pending THE Activity Bookings Client SHALL show a loading state. WHEN login or registration succeeds THE Activity Bookings Client SHALL use the returned access token to enter the authenticated main area. WHEN either request fails THE Activity Bookings Client SHALL show the failure and allow the user to correct input or retry.
+- [x] WHEN an authenticated user opens the activity list THE Activity Bookings Client SHALL request `GET /activities` without a JWT and provide visible loading, empty, and error states, with a retry path for a failed request.
+- [x] WHEN an authenticated user selects an activity THE Activity Bookings Client SHALL request `GET /activities/:id` without a JWT and show a distinct detail screen with the returned activity data, loading and error states, and a retry path for a failed request. THE Activity Bookings Client SHALL provide a return path to the activity list.
+- [x] WHEN an authenticated user submits a booking THE Activity Bookings Client SHALL accept only a positive whole participant count, submit the selected activity ID and count through authenticated `POST /bookings`, show a loading state while pending, present the API-reported result on success, and present the reported error with a retry path on failure without inventing capacity or payment outcomes.
+- [x] WHEN an authenticated user opens booking review THE Activity Bookings Client SHALL request `GET /bookings` with the in-memory JWT and show returned bookings in API response order with payment statuses as reported, plus loading, empty, error, and retry states. THE Activity Bookings Client SHALL NOT infer capacity or payment rules.
+- [x] WHEN the authenticated main area is shown THE Activity Bookings Client SHALL provide distinct activity list, activity detail, and booking review screens with navigation between them, and SHALL return to the account screen after a reload without restoring the access token.
 - [ ] THE Activity Bookings Client SHALL present readable typography, consistent spacing, and a clear visual hierarchy across the account and authenticated screens; at 360x800 and 1280x800 viewports, primary content and navigation SHALL fit without horizontal scrolling or overlap.
 - [ ] THE Activity Bookings Client SHALL use semantic controls and meaningful labels, support keyboard navigation with visible focus, provide sufficient contrast, and communicate statuses without relying on color alone.

@@ -37,6 +37,7 @@ button {
   min-height: 76px;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   padding: 0 max(24px, calc((100vw - 1180px) / 2));
   border-bottom: 1px solid #dfe4db;
   background: rgb(255 255 255 / 74%);
@@ -63,13 +64,32 @@ button {
   font-size: 1.2rem;
 }
 
-.header-note {
-  color: #66736b;
-  font-size: 0.9rem;
+.main-navigation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
 }
 
-.header-action {
+.main-navigation__item {
+  min-height: 40px;
+  padding: 8px 11px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #53635b;
+  background: transparent;
   font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.main-navigation__item:hover {
+  background: #e8eee6;
+}
+
+.main-navigation__item[aria-current="page"] {
+  border-color: #b9cbbd;
+  color: #204f47;
+  background: #e3ece4;
 }
 
 .page-content {
@@ -222,7 +242,8 @@ h1,
 .auth-submit:focus-visible,
 .auth-switch button:focus-visible,
 .auth-field input:focus-visible,
-.terms-field input:focus-visible {
+.terms-field input:focus-visible,
+.main-navigation__item:focus-visible {
   outline: 3px solid #d68a5c;
   outline-offset: 3px;
 }
@@ -255,7 +276,6 @@ h1,
 .activity-item:focus-visible,
 .back-button:focus-visible,
 .text-button:focus-visible,
-.header-action:focus-visible,
 .brand:focus-visible {
   outline: 3px solid #d68a5c;
   outline-offset: 3px;
@@ -494,11 +514,13 @@ h1,
 @media (max-width: 600px) {
   .site-header {
     min-height: 64px;
-    padding: 0 20px;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 20px;
   }
 
-  .header-note {
-    font-size: 0.82rem;
+  .main-navigation {
+    width: 100%;
   }
 
   .page-content {

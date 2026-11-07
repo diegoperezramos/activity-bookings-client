@@ -32,7 +32,7 @@ The proposed app-level authentication gate intentionally changes current behavio
 - After confirmed authentication, provide one navigable main area containing the activity list, activity details and booking flow, and booking review.
 - Keep navigation and shared visual treatment consistent across these views; preserve the implemented API-backed behavior.
 - After successful login or registration, use the API-returned `accessToken` to enter the authenticated main area.
-- **Status**: NotStarted
+- **Status**: Implemented
 
 ## Acceptance Criteria
 

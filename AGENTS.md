@@ -2,7 +2,7 @@
 
 ## Project Overview
 - Activity Bookings Client is a React web client for the demo Activity Bookings API.
-- FR1 activity discovery, FR2 account registration/login, FR3 participant booking, and FR4 booking review are implemented.
+- FR1 activity discovery, FR2 account registration/login, FR3 participant booking, FR4 booking review, and FR5 the login-first authenticated client experience are implemented.
 - The client is for training and demos, not production use.
 
 ## Technical Implementation
@@ -40,16 +40,18 @@
 │   ├── PRD.md
 │   ├── ADD.md
 │   ├── briefing.md
-│   ├── plans/                # Optional implementation plans
-│   └── specs/                # Feature specs and their implementation plans
+│   ├── plans/                # Feature implementation plans
+│   │   ├── feat-activity-discovery.plan.md
+│   │   ├── feat-user-authentication.plan.md
+│   │   ├── feat-create-booking.plan.md
+│   │   ├── feat-review-bookings.plan.md
+│   │   └── feat-login-first-client-experience.plan.md
+│   └── specs/                # Feature specifications
 │       ├── feat-activity-discovery.spec.md
-│       ├── feat-activity-discovery.plan.md
 │       ├── feat-user-authentication.spec.md
-│       ├── feat-user-authentication.plan.md
 │       ├── feat-create-booking.spec.md
-│       ├── feat-create-booking.plan.md
 │       ├── feat-review-bookings.spec.md
-│       └── feat-review-bookings.plan.md
+│       └── feat-login-first-client-experience.spec.md
 ├── activitybookings-cli.briefing.md
 ├── index.html               # Vite application entry document
 ├── .env.example             # Example API URL configuration

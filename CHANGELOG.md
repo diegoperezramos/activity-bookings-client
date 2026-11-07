@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.5.0] - 2026-11-07
+
+### Added
+- Login-first account entry with registration as an alternative and an authenticated area for activity discovery, details, booking, and booking review.
+- Client-side gating and navigation for activity and booking screens while preserving the existing API endpoints and authentication-token behavior.
+
 ## [0.4.0] - 2026-11-07
 
 ### Added
