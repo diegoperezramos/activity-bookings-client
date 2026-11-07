@@ -2,7 +2,7 @@
 
 ## Project Overview
 - Activity Bookings Client is a React web client for the demo Activity Bookings API.
-- FR1 activity discovery is implemented; account access and bookings remain planned.
+- FR1 activity discovery and FR2 account registration/login are implemented; bookings remain planned.
 - The client is for training and demos, not production use.
 
 ## Technical Implementation
@@ -10,7 +10,8 @@
 - **Framework:** React 19 and Vite 8.
 - **API:** External Activity Bookings API at `http://localhost:3000` during local development.
 - **Configuration:** Set `VITE_API_URL`; it defaults to `http://localhost:3000`.
-- **Security:** Use the API's JWT for protected booking requests.
+- **Authentication:** Keep the API-returned `accessToken` in React memory and pass it to `apiFetch` as `jwt` for protected requests.
+- Do not add token persistence, expiry, refresh, or logout behavior; booking requests are not implemented yet.
 - **Testing:** Vitest, jsdom, and React Testing Library.
 - **Logging:** Use browser `console` methods when needed; add no logging package.
 - Use browser `fetch` for API calls; avoid extra runtime packages without a clear need.
@@ -33,7 +34,8 @@
 .
 ├── .github/                 # Agent definitions and skills
 ├── src/                     # React application and tests
-│   └── api/                 # Shared API client and activity requests
+│   ├── api/                 # Shared API client, activity requests, and authentication
+│   └── auth-context.jsx     # In-memory authentication state
 ├── project/                 # Briefing, requirements, architecture, and specifications
 │   ├── PRD.md
 │   ├── ADD.md
@@ -41,7 +43,9 @@
 │   ├── plans/                # Optional implementation plans
 │   └── specs/                # Feature specs and their implementation plans
 │       ├── feat-activity-discovery.spec.md
-│       └── feat-activity-discovery.plan.md
+│       ├── feat-activity-discovery.plan.md
+│       ├── feat-user-authentication.spec.md
+│       └── feat-user-authentication.plan.md
 ├── activitybookings-cli.briefing.md
 ├── index.html               # Vite application entry document
 ├── .env.example             # Example API URL configuration

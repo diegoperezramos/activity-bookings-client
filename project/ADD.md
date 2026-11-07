@@ -31,10 +31,11 @@ reviewing bookings through the external Activity Bookings demo API.
 ## Systems Architecture
 
 The browser application calls the independently run API. Public activity requests do not require
-authentication. Registration and login use the API; the returned JWT is used for protected
-booking requests. The API, its storage, capacity validation, and mock payment behavior remain
-outside this client. Release 0.1.0 implements FR1 activity discovery; account access and booking
-workflows remain planned.
+authentication. Releases 0.1.0 and 0.2.0 implement FR1 activity discovery and FR2 account
+registration/login, respectively. Registration and login use the API, and the returned
+`accessToken` is held in React memory and passed to `apiFetch` as `jwt` for protected requests.
+Booking workflows remain planned. The API, its storage, capacity validation, and mock payment
+behavior remain outside this client.
 
 ```mermaid
 flowchart LR
@@ -46,10 +47,13 @@ flowchart LR
     API --> Payment[API mock payment gateway]
 ```
 
-The client uses only the API contract for `GET /activities`, `GET /activities/:id`, `POST /users`,
-`POST /login`, `POST /bookings`, and `GET /bookings`. Bookings endpoints require JWT
-authentication. Request and response details must follow the API README and endpoint
-specifications; do not infer undocumented behavior.
+The client uses `GET /activities`, `GET /activities/:id`, `POST /users`, and `POST /login` today;
+`POST /bookings` and `GET /bookings` remain planned and require JWT authentication. Registration
+sends `email`, `username`, `password`, and `terms` (true when selected); the API validator expects
+`terms` although the published API README currently names `termsAccepted`. Login sends `email` and
+`password`. Successful authentication returns an `accessToken`, which remains in memory and is
+passed as the `jwt` option to `apiFetch`. Token persistence, expiry, refresh, and logout are not
+implemented. Do not infer undocumented behavior or change the backend.
 
 ## Software Architecture
 
@@ -57,14 +61,15 @@ Use a small browser-side React application. Keep rendered interface and user int
 and isolate HTTP calls in the API modules using `fetch`. `src/api/client.js` provides `apiFetch`,
 and `src/api/activities.js` exposes the public activity-list and activity-detail requests.
 
-The current implemented flow loads `GET /activities` when browsing opens and requests
-`GET /activities/:id` when an activity is selected. The interface handles loading, empty, and
-request-failure states, with retry actions for failed requests. These requests are public and do
-not include a JWT.
+The implemented flows load `GET /activities` when browsing opens, request
+`GET /activities/:id` when an activity is selected, and submit registration/login to the API. The
+activity interface handles loading, empty, and request-failure states, with retry actions for failed
+requests. Activity requests are public and do not include a JWT. Authentication stores the returned
+`accessToken` only in React memory; protected consumers pass it to `apiFetch` as `jwt`.
 
-Planned flows are registration/login, JWT-authenticated booking creation and booking-list requests,
-and display of API-reported booking/payment status. Do not prescribe token persistence, expiry,
-refresh, or logout behavior beyond what the API contract documents.
+Planned flows are JWT-authenticated booking creation and booking-list requests, and display of
+API-reported booking/payment status. Do not add token persistence, expiry, refresh, or logout
+behavior.
 
 Keep UI state and API error handling proportionate to a training demo. Do not add a backend,
 payment integration, state-management framework, or other packages without a requirement.
@@ -88,10 +93,11 @@ payment integration, state-management framework, or other packages without a req
 - **Consequences:** Call only documented endpoints and render API-reported outcomes. Run the API
   independently during development.
 
-### ADR 3: Keep JWT handling limited to protected requests
-- **Decision:** Use the JWT returned by the API for protected booking requests without specifying
-  undocumented storage or lifecycle behavior.
+### ADR 3: Keep JWT handling in memory and limited to protected requests
+- **Decision:** Keep the API-returned `accessToken` in React memory and pass it to `apiFetch` as
+  `jwt` for protected requests; do not implement persistence or lifecycle behavior.
 - **Status:** Accepted
 - **Context:** The requirements establish JWT-protected bookings but do not define client token
   persistence, expiration, refresh, or logout semantics.
-- **Consequences:** Follow the API's published authentication details; do not invent token behavior.
+- **Consequences:** Registration sends the API validator's `terms` field (the published API README
+  currently says `termsAccepted`). Do not invent token behavior or change the backend.

@@ -29,9 +29,15 @@ Por supuesto, puedes desarrollarlo con cualquier herramienta de IA que te guste.
 
 ### Current client implementation
 
-This repository currently implements public activity discovery: browse scheduled activities and
-open details including date, duration, location, price, and participant limits. Registration,
-booking, and booking review remain planned features.
+This repository implements public activity discovery and account registration/login. Users can
+browse scheduled activities and open details including date, duration, location, price, and
+participant limits. Registration sends `email`, `username`, `password`, and the selected `terms`
+value; login sends `email` and `password`. The API-returned `accessToken` is held in memory and
+passed to `apiFetch` as `jwt` for protected requests. Booking and booking review remain planned.
+
+The API registration validator expects `terms`, although the published API README currently names
+the field `termsAccepted`; this client follows the validator. The client does not persist the token
+or implement token expiry, refresh, logout, or booking requests.
 
 Run the Activity Bookings API separately, then start the client from this repository:
 

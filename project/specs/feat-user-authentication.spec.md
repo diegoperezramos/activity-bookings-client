@@ -1,6 +1,6 @@
 # User Authentication Specification
 - **Type**: feat
-- **Status**: Draft
+- **Status**: Released
 
 ## Problem Description
 
@@ -24,13 +24,13 @@ Submit the form data to the corresponding API endpoint and use the returned JWT 
 
 ### Data and API interactions
 
-- Registration uses `POST /users` with `email`, `username`, `password`, and `termsAccepted`.
+- Registration uses `POST /users` with `email`, `username`, `password`, and `terms` set to `true` when the user accepts the terms.
 - Login uses `POST /login` with `email` and `password`.
 - Use an API-returned JWT for protected API requests.
 - Token persistence, expiry, refresh, and unspecified authentication errors are outside this specification.
 
 ## Acceptance Criteria
 
-- [ ] WHEN a user submits registration THE Activity Bookings Client SHALL send `POST /users` with `email`, `username`, `password`, and `termsAccepted`.
-- [ ] WHEN a user submits login THE Activity Bookings Client SHALL send `POST /login` with `email` and `password`.
-- [ ] WHEN the API returns a JWT after registration or login THE Activity Bookings Client SHALL use that JWT for protected API requests.
+- [x] WHEN a user submits registration THE Activity Bookings Client SHALL send `POST /users` with `email`, `username`, `password`, and `terms` set to `true` when the user accepts the terms.
+- [x] WHEN a user submits login THE Activity Bookings Client SHALL send `POST /login` with `email` and `password`.
+- [x] WHEN the API returns a JWT after registration or login THE Activity Bookings Client SHALL use that JWT for protected API requests.
