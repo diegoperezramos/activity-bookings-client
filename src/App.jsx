@@ -17,6 +17,25 @@ export function getActivityDetailFields(activity) {
   ];
 }
 
+function getAuthenticationErrorMessage(error) {
+  const payload = error?.payload;
+  const validationMessages = Array.isArray(payload?.errors)
+    ? payload.errors
+      .map((item) => item?.message)
+      .filter((message) => typeof message === 'string' && message.length > 0)
+    : [];
+  const apiMessages = [payload?.message, ...validationMessages]
+    .filter((message) => typeof message === 'string' && message.length > 0);
+
+  if (apiMessages.length > 0) {
+    return [...new Set(apiMessages)].join(' ');
+  }
+  if (error?.status !== undefined) {
+    return `The API responded with HTTP ${error.status}.`;
+  }
+  return 'No API response was received.';
+}
+
 function App() {
   const { accessToken, setAccessToken } = useAuth();
   const [activities, setActivities] = useState([]);
@@ -99,9 +118,9 @@ function App() {
       setAccessToken(response.accessToken);
       setAuthStatus('success');
       setAuthMessage(authMode === 'register' ? 'Account created.' : 'You are signed in.');
-    } catch {
+    } catch (error) {
       setAuthStatus('error');
-      setAuthMessage('Authentication failed. Please try again.');
+      setAuthMessage(getAuthenticationErrorMessage(error));
     }
   }
 
@@ -224,6 +243,7 @@ function App() {
                 type="password"
                 autoComplete={authMode === 'register' ? 'new-password' : 'current-password'}
                 required
+                minLength={authMode === 'register' ? 6 : undefined}
               />
             </label>
             {authMode === 'register' && (

@@ -345,6 +345,8 @@ describe('authentication workflow', () => {
 
     const form = screen.getByRole('form', { name: 'Registration' });
     const terms = within(form).getByRole('checkbox', { name: 'I accept the terms.' });
+    const password = within(form).getByLabelText('Password');
+    expect(password).toHaveAttribute('minlength', '6');
     expect(terms).toBeRequired();
     fireEvent.submit(form);
     expect(fetchMock).toHaveBeenCalledTimes(1);
@@ -402,21 +404,30 @@ describe('authentication workflow', () => {
     expect(new Headers(protectedOptions.headers).get('Authorization')).toBe('Bearer login-token');
   });
 
-  it('shows generic feedback when authentication fails', async () => {
+  it('shows API registration validation details when account creation is rejected', async () => {
+    const rejection = {
+      message: 'Validation failed',
+      errors: [{ field: 'email', message: 'Email is already registered' }],
+    };
     const fetchMock = vi.fn((url) => Promise.resolve(
       url.endsWith('/activities')
         ? jsonResponse([])
-        : jsonResponse(null, { ok: false, status: 401 }),
+        : jsonResponse(rejection, { ok: false, status: 400 }),
     ));
     vi.stubGlobal('fetch', fetchMock);
 
     renderApp();
-    const form = screen.getByRole('form', { name: 'Login' });
+    fireEvent.click(screen.getByRole('button', { name: 'Create account' }));
+    const form = screen.getByRole('form', { name: 'Registration' });
     fireEvent.change(within(form).getByLabelText('Email'), { target: { value: 'alex@example.com' } });
-    fireEvent.change(within(form).getByLabelText('Password'), { target: { value: 'wrong-password' } });
-    fireEvent.click(within(form).getByRole('button', { name: 'Log in' }));
+    fireEvent.change(within(form).getByLabelText('Username'), { target: { value: 'alex' } });
+    fireEvent.change(within(form).getByLabelText('Password'), { target: { value: 'password123' } });
+    fireEvent.click(within(form).getByRole('checkbox', { name: 'I accept the terms.' }));
+    fireEvent.click(within(form).getByRole('button', { name: 'Create account' }));
 
-    expect(await screen.findByRole('alert')).toHaveTextContent('Authentication failed. Please try again.');
-    expect(screen.queryByText(/401|status/i)).not.toBeInTheDocument();
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('Validation failed');
+    expect(alert).toHaveTextContent('Email is already registered');
+    expect(alert).not.toHaveTextContent('Authentication failed');
   });
 });

@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.3.1] - 2026-11-07
+
+### Fixed
+- Show API registration validation errors and enforce the API's minimum password length in the registration form.
+
 ## [0.3.0] - 2026-11-07
 
 ### Added
