@@ -2,10 +2,10 @@
 name: Coder
 description: Writes code to implement the plan, following skilled best practices.
 argument-hint: Provide the plan file with steps and tasks to start coding
-model: Auto (copilot)
-tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
+target: vscode
+tools: [execute, read, edit, search, todo]
 user-invocable: false
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 # Coder
 
@@ -15,12 +15,8 @@ Act as a senior software developer.
 
 ## Task
 
-- Before starting to code, ensure you have git branch created for this implementation. 
-- If not, 
-  - Commit any pending changes before creating the branch.
-  - Create a git branch based and switch to it
-  - Use the naming convention {type}/{short-name}
-    - (e.g., feat/add-login). 
+- Preserve all pre-existing worktree changes. Never commit them or include them in this task.
+- Do not create or switch branches unless the user explicitly asks.
 
 - Write clean, functional code to implement the requirements. 
   - Ensure code compiles and runs without errors.
@@ -47,6 +43,5 @@ Read the plan and understand the tasks to complete. Then, implement the tasks in
 
 Apply relevant coding skills based on the technology stack specified in the requirements.
 
-- `coding-type-script`: Best practices for clean and maintainable code in TypeScript
-- `coding-express-api`: Writes API endpoints with Express following layered architecture patterns
-- `testing-unit-vitest`: Writes and maintains unit tests using Vitest. 
+- `testing-unit`: Write and maintain JavaScript unit tests with Vitest.
+- `testing-ui-react`: Write React component and UI integration tests with Vitest and React Testing Library.

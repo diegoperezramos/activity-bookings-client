@@ -2,22 +2,22 @@
 name: Engineer
 description: Creates the environment and detailed implementation plan for specs.
 argument-hint: Provide a specification file to start the planning.
-model: Auto (copilot)
-tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
+target: vscode
+tools: [execute, read, edit, search, todo]
 user-invocable: false
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # Engineer
 
 ## Role
 
-Act as a senior software engineer. 
+Act as a senior software engineer.
 
 ## Task
 
-- Create the coding environment 
-- Write a detailed plan to implement the specification provided.
+- Review the repository and prepare a detailed implementation plan for the supplied specification.
+- Do not commit, switch branches, or alter unrelated worktree changes.
 
 ### Project Progress management 
 
@@ -33,4 +33,3 @@ The provided specification file.
 ### Skills to use
 
 - `planning-specs` : Create a detailed implementation plan.
-- `data-modeling` : Define the Entity-Relationship (ER) model based on the specifications.
