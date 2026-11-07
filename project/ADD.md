@@ -30,18 +30,20 @@ reviewing bookings through the external Activity Bookings demo API.
 
 ## Systems Architecture
 
-The browser application calls the independently run API. Public activity requests do not require
-authentication. Releases 0.1.0, 0.2.0, 0.3.0, and 0.4.0 implement FR1 activity discovery, FR2 account
-registration/login, FR3 participant booking, and FR4 booking review, respectively. Registration and
-login use the API, and the returned `accessToken` is held in React memory and passed to `apiFetch` as
-`jwt` for protected requests. Booking review uses authenticated `GET /bookings` and preserves the
-API response order and reported payment status. The API, its storage, capacity validation, and
-mock payment behavior remain outside this client.
+The browser application calls the independently run API. The login-first UI presents registration as
+an alternative; after either succeeds, the API-returned `accessToken` is held in React memory and the
+authenticated application area becomes available. The API source confirms that both `POST /login`
+and `POST /users` return an access token on success. Activity list and detail endpoints remain public
+at the API boundary, but the client intentionally gates these views until authentication. This
+changes current public UI browsing behavior without changing API access or request behavior. Booking
+creation and review continue to use protected endpoints; review preserves API response order and
+reported payment status. The API, its storage, capacity validation, and mock payment behavior remain
+outside this client.
 
 ```mermaid
 flowchart LR
     Visitor[User in browser] --> Client[React client]
-    Client -->|GET /activities<br/>GET /activities/:id| API[Activity Bookings API]
+    Client -->|After client-side auth gate:<br/>GET /activities<br/>GET /activities/:id| API[Activity Bookings API]
     Client -->|POST /users<br/>POST /login| API
     Client -->|POST /bookings<br/>GET /bookings<br/>JWT-protected| API
     API --> Data[API-owned JSON files]
@@ -49,34 +51,38 @@ flowchart LR
 ```
 
 The client uses `GET /activities`, `GET /activities/:id`, `POST /users`, `POST /login`,
-`POST /bookings`, and JWT-protected `GET /bookings`. Booking retrieval uses the authenticated
-in-memory JWT. Booking creation sends the selected `activityId` and a positive whole-number `participants` count. The client
-displays the API-reported result and does not implement capacity checks or payment rules. Registration
-sends `email`, `username`, `password`, and `terms` (true when selected); the API validator expects
-`terms` although the published API README currently names `termsAccepted`. Login sends `email` and
-`password`. Successful authentication returns an `accessToken`, which remains in memory and is
-passed as the `jwt` option to `apiFetch`. Token persistence, expiry, refresh, and logout are not
-implemented. Do not infer undocumented behavior or change the backend.
+`POST /bookings`, and JWT-protected `GET /bookings`. The list and detail requests remain public and
+do not include a JWT, even though their views are gated by the client until authentication. Booking
+retrieval and creation use the authenticated in-memory token. Booking creation sends the selected
+`activityId` and a positive whole-number `participants` count; the client displays the API-reported
+result and does not implement capacity checks or payment rules. Registration sends `email`,
+`username`, `password`, and `terms: true`; login sends `email` and `password`. Both successful API
+responses include an `accessToken`. It remains in memory and is passed as the `jwt` option to
+`apiFetch` for protected requests. Token persistence, expiry, refresh, and logout are not implemented.
+Do not infer undocumented behavior or change the backend.
 
 ## Software Architecture
 
-Use a small browser-side React application. Keep rendered interface and user interaction in React,
-and isolate HTTP calls in the API modules using `fetch`. `src/api/client.js` provides `apiFetch`,
-and `src/api/activities.js` exposes the public activity-list and activity-detail requests.
+Keep the browser-side React application and existing API modules. Present login as the initial
+account screen, with registration available as its alternative. A successful response from either
+auth action enters one authenticated main area with navigation among the activity list, selected
+activity detail and its existing booking action, and booking review. Gate the list and detail views in
+the client; keep their existing public API requests and behavior unchanged. Preserve a clear route
+back to the activity list from detail and booking review.
 
-The implemented flows load `GET /activities` when browsing opens, request
-`GET /activities/:id` when an activity is selected, submit registration/login to the API, and submit
-authenticated bookings and retrieve bookings for review through `src/api/bookings.js`. The activity
-and booking-review interfaces handle loading, empty, and request-failure states, with retry actions
-for failed requests. Activity requests are public and do not include a JWT. Authentication stores the
-returned `accessToken` only in React memory; protected consumers pass it to `apiFetch` as `jwt`.
-Booking submission handles API results without deriving capacity or payment outcomes. Booking review
-requires authentication and preserves API response order and reported payment statuses.
+Keep the experience usable across narrow and wide viewports, with layouts that adapt without
+horizontal overflow or obscured content. Use semantic navigation and form controls, visible keyboard
+focus, associated labels, and accessible status/error feedback. Preserve pending, error, empty, and
+success feedback for authentication, activity loading, booking submission, and booking review; keep
+retry actions for failed list, detail, and review requests. Keep the existing visual language in CSS
+and do not add a design library, new brand palette, or dependencies for this refactor.
 
-Do not add token persistence, expiry, refresh, or logout behavior.
-
-Keep UI state and API error handling proportionate to a training demo. Do not add a backend,
-payment integration, state-management framework, or other packages without a requirement.
+Keep HTTP calls in the existing `fetch` API modules. Activity list/detail remain unauthenticated API
+requests; registration/login use their existing endpoints; booking creation and review remain
+JWT-protected and consume API-reported results. Authentication state stays in React memory, so a
+reload returns to the login-first screen. Do not add token persistence, expiry, refresh, or logout
+behavior, or change the API/backend. Keep UI state and API error handling proportionate to a training
+demo; do not add a backend, payment integration, or state-management framework.
 
 ## Architecture Decisions Record
 
@@ -105,3 +111,15 @@ payment integration, state-management framework, or other packages without a req
   persistence, expiration, refresh, or logout semantics.
 - **Consequences:** Registration sends the API validator's `terms` field (the published API README
   currently says `termsAccepted`). Do not invent token behavior or change the backend.
+
+### ADR 4: Make authentication the client entry point
+- **Decision:** Present login first, offer registration as an alternative, and gate the activity and
+  booking views behind successful authentication in the client.
+- **Status:** Proposed
+- **Context:** The current UI allows public activity browsing before authentication. The requested
+  navigation refactor makes account access the entry point while retaining public activity endpoints.
+- **Consequences:** Successful login and registration both enter the same authenticated main area
+  using the API-returned in-memory token. The UI browsing behavior intentionally changes; API
+  visibility and existing endpoint contracts do not. Keep navigation, responsive behavior,
+  accessibility, and pending/error/empty/success feedback within the existing React and CSS stack.
+  Do not add persistence, expiry, refresh, logout, a router, or a design dependency for this feature.
