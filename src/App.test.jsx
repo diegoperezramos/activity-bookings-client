@@ -26,6 +26,15 @@ function AuthTokenProbe() {
   );
 }
 
+function AuthTokenSetter() {
+  const { setAccessToken } = useAuth();
+  return (
+    <button type="button" onClick={() => setAccessToken('test-token')}>
+      Set test token
+    </button>
+  );
+}
+
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
@@ -152,6 +161,167 @@ describe('activity discovery workflow', () => {
     for (const [, options] of fetchMock.mock.calls) {
       expect(new Headers(options.headers).has('Authorization')).toBe(false);
     }
+  });
+});
+
+describe('activity booking workflow', () => {
+  const listedActivity = {
+    id: 'activity-1',
+    name: 'Riverside Kayaking',
+    date: '2026-11-07',
+    location: 'Riverside Park',
+    price: 25,
+  };
+
+  const detailedActivity = {
+    ...listedActivity,
+    duration: 90,
+    minParticipants: 2,
+    maxParticipants: 12,
+  };
+
+  it('does not expose booking controls before an activity is selected', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse([listedActivity]));
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderApp();
+
+    expect(await screen.findByRole('button', { name: /Riverside Kayaking/ })).toBeInTheDocument();
+    expect(screen.queryByRole('form', { name: 'Book this activity' })).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.some(([url]) => url.endsWith('/bookings'))).toBe(false);
+  });
+
+  it('requires authentication and a positive whole participant count', async () => {
+    const fetchMock = vi.fn((url) => Promise.resolve(
+      url.endsWith('/activities')
+        ? jsonResponse([listedActivity])
+        : jsonResponse(detailedActivity),
+    ));
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderApp(<><App /><AuthTokenSetter /></>);
+    fireEvent.click(await screen.findByRole('button', { name: 'Set test token' }));
+    fireEvent.click(await screen.findByRole('button', { name: /Riverside Kayaking/ }));
+
+    const input = await screen.findByLabelText('Participants');
+    const submit = screen.getByRole('button', { name: 'Book activity' });
+    expect(input).toBeRequired();
+    expect(input).toHaveAttribute('min', '1');
+    expect(input).toHaveAttribute('step', '1');
+    expect(submit).toBeDisabled();
+
+    fireEvent.change(input, { target: { value: '0' } });
+    expect(submit).toBeDisabled();
+    fireEvent.change(input, { target: { value: '1.5' } });
+    expect(submit).toBeDisabled();
+    fireEvent.change(input, { target: { value: '1' } });
+    expect(submit).toBeEnabled();
+  });
+
+  it('requires sign-in before enabling or sending a booking', async () => {
+    const fetchMock = vi.fn((url) => Promise.resolve(
+      url.endsWith('/activities')
+        ? jsonResponse([listedActivity])
+        : jsonResponse(detailedActivity),
+    ));
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderApp();
+    fireEvent.click(await screen.findByRole('button', { name: /Riverside Kayaking/ }));
+
+    const input = await screen.findByLabelText('Participants');
+    expect(screen.getByText('Sign in to book this activity.')).toBeInTheDocument();
+    expect(input).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Book activity' })).toBeDisabled();
+    expect(fetchMock.mock.calls.some(([url]) => url.endsWith('/bookings'))).toBe(false);
+  });
+
+  it('submits above the activity maximum and presents the unchanged API result', async () => {
+    let completeBooking;
+    const bookingResponse = { id: 'booking-1', result: 'accepted', payment: { status: 'pending' } };
+    const bookingPromise = new Promise((resolve) => {
+      completeBooking = resolve;
+    });
+    const fetchMock = vi.fn((url) => {
+      if (url.endsWith('/activities')) {
+        return Promise.resolve(jsonResponse([listedActivity]));
+      }
+      if (url.endsWith('/activities/activity-1')) {
+        return Promise.resolve(jsonResponse(detailedActivity));
+      }
+      return bookingPromise;
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderApp(<><App /><AuthTokenSetter /></>);
+    fireEvent.click(await screen.findByRole('button', { name: 'Set test token' }));
+    fireEvent.click(await screen.findByRole('button', { name: /Riverside Kayaking/ }));
+    fireEvent.change(await screen.findByLabelText('Participants'), { target: { value: '13' } });
+
+    const submit = screen.getByRole('button', { name: 'Book activity' });
+    fireEvent.click(submit);
+    expect(await screen.findByText('Submitting booking...')).toBeInTheDocument();
+    expect(submit).toBeDisabled();
+    fireEvent.click(submit);
+
+    const bookingRequests = fetchMock.mock.calls.filter(([url]) => url.endsWith('/bookings'));
+    expect(bookingRequests).toHaveLength(1);
+    const [bookingUrl, options] = bookingRequests[0];
+    expect(bookingUrl).toBe(`${API_BASE_URL}/bookings`);
+    expect(options.method).toBe('POST');
+    expect(JSON.parse(options.body)).toEqual({ activityId: 'activity-1', participants: 13 });
+    expect(new Headers(options.headers).get('Authorization')).toBe('Bearer test-token');
+
+    completeBooking(jsonResponse(bookingResponse));
+    const result = await screen.findByRole('status', { name: 'Booking response' });
+    expect(result.querySelector('pre').textContent).toBe(JSON.stringify(bookingResponse, null, 2));
+  });
+
+  it('presents the API-reported rejection payload without replacing its wording', async () => {
+    const rejection = { message: 'Booking rejected', errors: ['Participants are unavailable'] };
+    const fetchMock = vi.fn((url) => Promise.resolve(
+      url.endsWith('/activities')
+        ? jsonResponse([listedActivity])
+        : url.endsWith('/activities/activity-1')
+          ? jsonResponse(detailedActivity)
+          : jsonResponse(rejection, { ok: false, status: 409 }),
+    ));
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderApp(<><App /><AuthTokenSetter /></>);
+    fireEvent.click(await screen.findByRole('button', { name: 'Set test token' }));
+    fireEvent.click(await screen.findByRole('button', { name: /Riverside Kayaking/ }));
+    fireEvent.change(await screen.findByLabelText('Participants'), { target: { value: '2' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Book activity' }));
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('"message": "Booking rejected"');
+    expect(alert).toHaveTextContent('"errors": [');
+    expect(alert).toHaveTextContent('Participants are unavailable');
+    expect(alert).not.toHaveTextContent('Booking failed');
+  });
+
+  it('shows neutral feedback when the booking request receives no API response', async () => {
+    const fetchMock = vi.fn((url) => {
+      if (url.endsWith('/activities')) {
+        return Promise.resolve(jsonResponse([listedActivity]));
+      }
+      if (url.endsWith('/activities/activity-1')) {
+        return Promise.resolve(jsonResponse(detailedActivity));
+      }
+      return Promise.reject(new TypeError('Failed to fetch'));
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderApp(<><App /><AuthTokenSetter /></>);
+    fireEvent.click(await screen.findByRole('button', { name: 'Set test token' }));
+    fireEvent.click(await screen.findByRole('button', { name: /Riverside Kayaking/ }));
+    fireEvent.change(await screen.findByLabelText('Participants'), { target: { value: '2' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Book activity' }));
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('No API response was received.');
+    expect(alert).not.toHaveTextContent('Booking failed');
   });
 });
 

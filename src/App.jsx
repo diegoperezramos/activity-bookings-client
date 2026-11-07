@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { getActivities, getActivityById } from './api/activities';
 import { loginUser, registerUser } from './api/auth';
+import { createBooking } from './api/bookings';
 import { useAuth } from './auth-context';
 import './App.css';
 
@@ -17,7 +18,7 @@ export function getActivityDetailFields(activity) {
 }
 
 function App() {
-  const { setAccessToken } = useAuth();
+  const { accessToken, setAccessToken } = useAuth();
   const [activities, setActivities] = useState([]);
   const [listStatus, setListStatus] = useState('loading');
   const [selectedId, setSelectedId] = useState(null);
@@ -27,6 +28,49 @@ function App() {
   const [authMode, setAuthMode] = useState('login');
   const [authStatus, setAuthStatus] = useState('idle');
   const [authMessage, setAuthMessage] = useState('');
+  const [bookingParticipants, setBookingParticipants] = useState('');
+  const [bookingStatus, setBookingStatus] = useState('idle');
+  const [bookingResponse, setBookingResponse] = useState(null);
+  const [bookingError, setBookingError] = useState(null);
+  const bookingPendingRef = useRef(false);
+  const participantCount = Number(bookingParticipants);
+  const hasValidParticipants = bookingParticipants !== ''
+    && Number.isInteger(participantCount)
+    && participantCount >= 1;
+  const hasActivityId = activity?.id !== undefined
+    && activity?.id !== null
+    && activity.id !== '';
+
+  async function submitBooking(event) {
+    event.preventDefault();
+    if (
+      bookingPendingRef.current
+      || !accessToken
+      || !hasActivityId
+      || !hasValidParticipants
+    ) {
+      return;
+    }
+
+    bookingPendingRef.current = true;
+    setBookingStatus('pending');
+    setBookingResponse(null);
+    setBookingError(null);
+    try {
+      const result = await createBooking({
+        activityId: activity.id,
+        participants: participantCount,
+        jwt: accessToken,
+      });
+      setBookingResponse(result);
+      setBookingStatus('success');
+    } catch (error) {
+      setBookingError({ status: error.status, payload: error.payload });
+      setBookingStatus('error');
+    } finally {
+      bookingPendingRef.current = false;
+    }
+  }
 
   async function submitAuthentication(event) {
     event.preventDefault();
@@ -116,6 +160,10 @@ function App() {
     setSelectedId(null);
     setActivity(null);
     setDetailStatus('idle');
+    setBookingParticipants('');
+    setBookingStatus('idle');
+    setBookingResponse(null);
+    setBookingError(null);
   }
 
   return (
@@ -250,7 +298,12 @@ function App() {
           </section>
         ) : (
           <section className="detail-section" aria-label="Activity details">
-            <button className="back-button" type="button" onClick={returnToActivities}>
+            <button
+              className="back-button"
+              type="button"
+              disabled={bookingStatus === 'pending'}
+              onClick={returnToActivities}
+            >
               <span aria-hidden="true">&lt;-</span> All activities
             </button>
             {detailStatus === 'loading' && (
@@ -280,6 +333,62 @@ function App() {
                     </div>
                   ))}
                 </dl>
+                <section className="booking-section" aria-label="Activity booking">
+                  <h3>Book this activity</h3>
+                  {!accessToken && (
+                    <p className="booking-note" role="status">Sign in to book this activity.</p>
+                  )}
+                  <form className="booking-form" aria-label="Book this activity" onSubmit={submitBooking}>
+                    <label className="booking-field">
+                      <span>Participants</span>
+                      <input
+                        name="participants"
+                        type="number"
+                        min="1"
+                        step="1"
+                        required
+                        value={bookingParticipants}
+                        disabled={!accessToken || bookingStatus === 'pending'}
+                        onChange={(event) => {
+                          setBookingParticipants(event.target.value);
+                          setBookingStatus('idle');
+                          setBookingResponse(null);
+                          setBookingError(null);
+                        }}
+                      />
+                    </label>
+                    <button
+                      className="booking-submit"
+                      type="submit"
+                      disabled={!accessToken || !hasActivityId || !hasValidParticipants || bookingStatus === 'pending'}
+                    >
+                      {bookingStatus === 'pending' ? 'Submitting...' : 'Book activity'}
+                    </button>
+                  </form>
+                  {bookingStatus === 'pending' && (
+                    <p className="booking-note" role="status">Submitting booking...</p>
+                  )}
+                  {bookingStatus === 'success' && (
+                    <div className="booking-result" role="status" aria-label="Booking response">
+                      <h4>Booking response</h4>
+                      <pre>{JSON.stringify(bookingResponse, null, 2)}</pre>
+                    </div>
+                  )}
+                  {bookingStatus === 'error' && (
+                    <div className="booking-result booking-result--error" role="alert">
+                      {bookingError?.payload !== undefined ? (
+                        <>
+                          <h4>Booking response</h4>
+                          <pre>{JSON.stringify(bookingError.payload, null, 2)}</pre>
+                        </>
+                      ) : bookingError?.status !== undefined ? (
+                        <p>The API responded with HTTP {bookingError.status} without a JSON payload.</p>
+                      ) : (
+                        <p>No API response was received.</p>
+                      )}
+                    </div>
+                  )}
+                </section>
               </article>
             )}
           </section>

@@ -21,7 +21,7 @@ The client may be a web or terminal application; the current repository manifest
 
 ### FR3 Book participants
 - Authenticated users can book one or more participants for an activity through the API.
-- **Status**: NotStarted
+- **Status**: Implemented
 
 ### FR4 Review bookings
 - Users can view their bookings and the payment status reported by the API.
@@ -35,5 +35,5 @@ The client may be a web or terminal application; the current repository manifest
 
 ### TR2 Integrate with the external API
 - Use the Activity Bookings API as an external dependency and follow its verified endpoint behavior; do not change the backend or assume undocumented behavior.
-- Public activity discovery and account registration/login are integrated. The protected-request token path is verified; booking requests remain pending under FR3 and FR4.
+- Public activity discovery, account registration/login, and booking creation are integrated. Booking review remains pending under FR4.
 - **Status**: InProgress

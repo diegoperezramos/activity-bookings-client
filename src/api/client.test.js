@@ -24,14 +24,20 @@ describe('apiFetch', () => {
   });
 
   it('throws an error carrying the HTTP status for a non-OK response', async () => {
+    const payload = { message: 'Unavailable', errors: ['Try later'] };
     vi.stubGlobal(
       'fetch',
-      vi.fn().mockResolvedValue({ ok: false, status: 503 }),
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 503,
+        json: vi.fn().mockResolvedValue(payload),
+      }),
     );
 
     await expect(apiFetch('/health')).rejects.toMatchObject({
       message: 'Request failed with status 503',
       status: 503,
+      payload,
     });
   });
 
