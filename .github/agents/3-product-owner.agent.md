@@ -2,10 +2,10 @@
 name: Product Owner
 description: Internal worker that writes detailed specifications for features, bug fixes, or enhancements based on the PRD.
 argument-hint: Provide a PRD or explain a requirement to write the specification.
-target: vscode
-tools: [read, edit, search, todo]
+model: Copilot Fusion
+tools: ['read', 'edit', 'search', 'web', 'agent', 'todo','execute']
 user-invocable: false
-disable-model-invocation: false
+disable-model-invocation: true
 ---
 # Product Owner
 
@@ -31,3 +31,4 @@ The provided Product Requirements Document (PRD) and a feature, bug fix, or enha
 ### Skills to use
 
 - `generating-specs` : Generates detailed specifications for features, bug fixes, or enhancements.
+

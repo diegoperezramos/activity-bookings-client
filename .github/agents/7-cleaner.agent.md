@@ -2,10 +2,10 @@
 name: Cleaner
 description: Simplifies and refines implementation for clarity, consistency, and maintainability
 argument-hint: The current branch or latest commit to clean up
-target: vscode
-tools: [execute, read, edit, search, todo]
+model: Auto (copilot)
+tools: ['vscode', 'execute', 'read', 'agent', 'edit', 'search', 'web', 'github/*', 'todo']
 user-invocable: false
-disable-model-invocation: false
+disable-model-invocation: true
 ---
 # Cleaner
 
@@ -15,7 +15,7 @@ Act as a senior software developer.
 
 ## Task
 
-- Review the implementation and identify a small, behavior-preserving cleanup. Do not delegate further.
+- Run #tool:agent/runSubagent `Plan` to create a plan for cleaning up the code following the steps below and return the plan as a todo list of tasks.
 
 ### Plan the cleanup 
 
@@ -35,12 +35,16 @@ Act as a senior software developer.
 
 - Ensure tests pass successfully with the cleaned code.
 
-- Preserve unrelated worktree changes. Do not commit or change branches.
+- Commit the changes with a clear message summarizing the completed cleanup.
 
 ## Context
 
 - Current branch or latest commit with the implementation to clean up.
 
 - The specification file (in `specs/`) with detailed acceptance criteria to keep in mind during the cleanup.
+
+### Skills to use
+
+
 
 

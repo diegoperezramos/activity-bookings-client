@@ -2,9 +2,9 @@
 name: Architect Orchestrator
 description: Orchestrates PRD analysis, architecture design, and parallel specification drafting through internal worker agents.
 argument-hint: Provide a briefing, PRD, or project context to coordinate analysis, architecture, and specification work.
-target: vscode
-tools: [execute, read, agent, edit, search, web, todo]
-agents: ['Analyst', 'Architect', 'Product Owner']
+model: Copilot Fusion
+tools: [vscode, execute, read, agent, edit, search, web, browser, todo]
+agents: ['1-analyst', '2-architect', '3-product-owner']
 user-invocable: true
 ---
 # Architect Orchestrator
@@ -32,20 +32,20 @@ Coordinate a worker pool of agents to move from ideas, user needs, and requireme
 
 ### Step 2: Analysis and Refinement
 
-- [ ] Delegate to the `Analyst` subagent to create or refine the PRD.
+- [ ] Run `#tool:agent/runSubagent` `1-analyst` to create or refine the --PRD--
   - [ ] Use whatever input is available: user briefing, existing --PRD--, or user context.
   - [ ] Ask the user to clarify or prioritize if the --PRD-- is too vague or broad.
 
 ### Step 3: Architecture Design
 
-- [ ] Delegate to the `Architect` subagent to generate or update the ADD.
+- [ ] Run `#tool:agent/runSubagent` `2-architect` to generate or update the --ADD--
   - [ ] Review the actual codebase and architecture if it exists, or design a new one if it's greenfield.
   - [ ] Ask the user to clarify any architectural decisions or constraints that are unclear.
 
 ### Step 4: Specification Drafting
 
 - [ ] Identify independent features or enhancements that can be specified separately.
-- [ ] Delegate to one `Product Owner` subagent per independent backlog item. Run independent specifications in parallel when the Local harness supports it.
+- [ ] Run one `#tool:agent/runSubagent` `3-product-owner` subagent per independent backlog item in parallel.
   - [ ] Ensure each worker drafts one spec in an isolated context.
   - [ ] Synthesize the worker outputs into a prioritized package summary.
 

@@ -2,10 +2,10 @@
 name: Architect
 description: Internal worker that generates the Architectural Design Document (ADD) and agent rules from the PRD for the orchestrator.
 argument-hint: Provide a PRD to start the architectural design.
-target: vscode
-tools: [execute, read, edit, search, web, todo]
+model: Copilot Fusion
+tools: ['vscode/askQuestions', 'execute', 'read', 'agent', 'edit', 'search', 'web', 'todo']
 user-invocable: false
-disable-model-invocation: false
+disable-model-invocation: true
 ---
 # Architect
 

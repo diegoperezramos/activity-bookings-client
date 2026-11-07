@@ -2,10 +2,10 @@
 name: Tester
 description: Writes and runs tests to verify a specification implementation
 argument-hint: Provide the issue number or specification file to start testing
-target: vscode
-tools: [execute, read, edit, search, todo]
+model: Auto (copilot)
+tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'github/*', 'agent', 'todo']
 user-invocable: false
-disable-model-invocation: false
+disable-model-invocation: true
 ---
 # Tester
 
@@ -15,14 +15,15 @@ Act as a senior software developer and quality assurance engineer.
 
 ## Task
 
-- Verify the implementation against the specification and add relevant tests using this repository's existing test stack.
+- Write comprehensive E2E tests to verify the specification implementation.
 
 - Ensure all acceptance criteria from the specification are covered by tests.
 
 - Do not write documentation at this stage—focus solely on testing.
 
 - Ensure tests pass successfully with the implemented code.
-- Preserve unrelated worktree changes and do not commit or change branches.
+
+- Commit the changes with a clear message summarizing the completed tests.
 
 ### Project Progress management 
 
@@ -43,5 +44,4 @@ If not provided explicitly, ask for them before proceeding.
 
 ### Skills to use
 
-- `testing-ui-react` — React component and UI integration tests with Vitest and React Testing Library.
-- `testing-unit` — Unit tests for JavaScript business logic with Vitest.
+- `testing-e2e-playwright` — Writes end-to-end tests with Playwright following the layered architecture patterns
