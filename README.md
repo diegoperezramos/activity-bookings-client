@@ -27,6 +27,22 @@ Por supuesto, puedes desarrollarlo con cualquier herramienta de IA que te guste.
 - Antigravity
 - etc.
 
+### Current client implementation
+
+This repository currently implements public activity discovery: browse scheduled activities and
+open details including date, duration, location, price, and participant limits. Registration,
+booking, and booking review remain planned features.
+
+Run the Activity Bookings API separately, then start the client from this repository:
+
+```sh
+npm install
+npm run dev
+```
+
+The API URL defaults to `http://localhost:3000`; set `VITE_API_URL` in `.env` to override it.
+Run `npm test` for tests and `npm run build` for a production build.
+
 ---
 
 - **Author**: [Alberto Basalo](https://albertobasalo.dev)

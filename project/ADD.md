@@ -24,15 +24,17 @@ reviewing bookings through the external Activity Bookings demo API.
 - **Development:** `npm install`, then `npm run dev`.
 - **Build:** `npm run build`; preview the build with `npm run preview`.
 - **Tests:** `npm test` runs Vitest with jsdom; `npm run test:unit` runs Vitest.
+- **API URL:** `VITE_API_URL`, defaulting to `http://localhost:3000`.
 - Run the API separately from its `activity-bookings-express` project folder.
-- The repository has package scripts and dependencies, plus a minimal React application foundation.
+- The repository includes the React client, package scripts, and API test coverage.
 
 ## Systems Architecture
 
 The browser application calls the independently run API. Public activity requests do not require
 authentication. Registration and login use the API; the returned JWT is used for protected
 booking requests. The API, its storage, capacity validation, and mock payment behavior remain
-outside this client.
+outside this client. Release 0.1.0 implements FR1 activity discovery; account access and booking
+workflows remain planned.
 
 ```mermaid
 flowchart LR
@@ -52,15 +54,17 @@ specifications; do not infer undocumented behavior.
 ## Software Architecture
 
 Use a small browser-side React application. Keep rendered interface and user interaction in React,
-and isolate HTTP calls in a lightweight API module using `fetch`. Keep authentication data only
-where needed to make the protected booking requests. Do not prescribe token persistence, expiry,
-refresh, or logout behavior beyond what the API contract documents.
+and isolate HTTP calls in the API modules using `fetch`. `src/api/client.js` provides `apiFetch`,
+and `src/api/activities.js` exposes the public activity-list and activity-detail requests.
 
-The main user flows are:
-1. Load and display activities; load an activity by ID when its details are needed.
-2. Register or log in through the API.
-3. Use the returned JWT for booking creation and booking-list requests.
-4. Display bookings and payment status as reported by the API.
+The current implemented flow loads `GET /activities` when browsing opens and requests
+`GET /activities/:id` when an activity is selected. The interface handles loading, empty, and
+request-failure states, with retry actions for failed requests. These requests are public and do
+not include a JWT.
+
+Planned flows are registration/login, JWT-authenticated booking creation and booking-list requests,
+and display of API-reported booking/payment status. Do not prescribe token persistence, expiry,
+refresh, or logout behavior beyond what the API contract documents.
 
 Keep UI state and API error handling proportionate to a training demo. Do not add a backend,
 payment integration, state-management framework, or other packages without a requirement.
