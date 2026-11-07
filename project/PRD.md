@@ -15,8 +15,9 @@ The client may be a web or terminal application; the current repository manifest
 - **Status**: Implemented
 
 ### FR2 Register and log in
-- Users can register through `POST /users` with email, username, password, and `termsAccepted`, and log in through `POST /login` with email and password. Users then use the returned JWT for protected requests.
-- **Status**: NotStarted
+- Users can register through `POST /users` with email, username, password, and `terms: true` when they accept the terms. The current API validator requires `terms`; its README's `termsAccepted` name is outdated.
+- Users can log in through `POST /login` with email and password. The client keeps the returned `accessToken` in memory and supplies it to protected requests.
+- **Status**: Implemented
 
 ### FR3 Book participants
 - Authenticated users can book one or more participants for an activity through the API.
@@ -33,5 +34,6 @@ The client may be a web or terminal application; the current repository manifest
 - **Status**: InProgress
 
 ### TR2 Integrate with the external API
-- Use the Activity Bookings API as an external dependency and follow its published setup and endpoint contract; do not implement or assume undocumented backend behavior.
-- **Status**: NotStarted
+- Use the Activity Bookings API as an external dependency and follow its verified endpoint behavior; do not change the backend or assume undocumented behavior.
+- Public activity discovery and account registration/login are integrated. The protected-request token path is verified; booking requests remain pending under FR3 and FR4.
+- **Status**: InProgress

@@ -17,7 +17,7 @@ Act as a senior DevOps engineer.
 ## Task
 
 - Complete the release for the changes on the current branch.
-- Review the repository's `AGENTS.md`, `README.md`, `project/ADD.md`, `CHANGELOG.md`, and other relevant documentation. Update only what is needed to accurately describe the delivered changes; do not make unrelated documentation changes.
+- Review the repository's `AGENTS.md`, `README.md`, `project/ADD.md`, `project/PRD.md`, `CHANGELOG.md`, and other relevant documentation. Update only what is needed to accurately describe the delivered changes; do not make unrelated documentation changes.
 - Determine the next semantic version from the existing package version, changelog, and tags. Update all applicable version metadata and the changelog, then create the corresponding `vX.Y.Z` Git tag. Never reuse an existing tag.
 - Run the relevant tests and production build before releasing, and report any checks that could not be run or that failed.
 - Commit the release changes, integrate them into the default branch, and push the default branch and release tag to the remote.
