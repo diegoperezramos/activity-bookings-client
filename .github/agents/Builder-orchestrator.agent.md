@@ -1,10 +1,11 @@
 ---
 name: Builder Orchestrator
 description: Orchestrates planning, implementation, verification, cleanup, and release through internal worker agents.
+target: vscode
 argument-hint: Provide a specification file, plan context, or implementation request to coordinate end-to-end delivery.
 model: Copilot Fusion
 tools: [vscode, execute, read, agent, edit, search, web, browser, todo]
-agents: ['4-engineer', '5-coder', '6-tester', '7-cleaner', '8-dev-ops']
+agents: ['Engineer', 'Coder', 'Tester', 'Cleaner', 'DevOps']
 user-invocable: true
 ---
 # Builder Orchestrator
@@ -23,26 +24,30 @@ Coordinate the current worker pipeline to move from specification to released im
 
 - If not, choose the most appropriate incomplete specification.
 
+- Run this workflow in a Local harness session with Run Subagent enabled.
+
 ## Workflow
 
 ### Step 1: Clarification and Planning
 
 - [ ] Clarify if there is a specification to build
   - [ ] Check the PRD and the current specs folder for any relevant specification files that are incomplete.
-  - [ ] If not, create one by running the `generate-spec` skill with the user provided context.
+  - [ ] If not, create one by running the `generating-specs` skill with the user provided context.
 
 ### Step 2: Execute the implementation pipeline
 
-- [ ] Run `#tool:agent/runSubagent` `4-engineer` to prepare the environment and produce or refine the implementation plan.
-- [ ] Run `#tool:agent/runSubagent` `5-coder` to implement the approved plan and complete unit-level verification.
-- [ ] Run `#tool:agent/runSubagent` `6-tester` to verify the implementation against the specification with end-to-end testing.
+- [ ] Delegate to the `Engineer` subagent to prepare the environment and produce or refine the implementation plan.
+- [ ] Delegate to the `Coder` subagent to implement the approved plan and complete unit-level verification.
+- [ ] Delegate to the `Tester` subagent to verify the implementation against the specification with React component and UI integration tests using Vitest and React Testing Library.
+
+Provide each subagent with the relevant specification, plan, prior results, and constraints.
 
 Repeat steps 2.1 to 2.3 until the implementation is verified or a blocker is found that requires user input or specification changes.
 
 ### Step 3: Cleanup, Documentation, and Release
 
-- [ ] Run `#tool:agent/runSubagent` `7-cleaner` to refine the implementation without changing behavior. This worker may use --Plan-- internally for cleanup planning.
-- [ ] Run `#tool:agent/runSubagent` `8-dev-ops` to update documentation, versioning, changelogs, and release integration.
+- [ ] Delegate to the `Cleaner` subagent to refine the implementation without changing behavior. This worker may use `Plan` internally for cleanup planning.
+- [ ] Delegate to the `DevOps` subagent to update documentation, versioning, changelogs, and release integration.
 
 ### Step 4: Synthesis and Follow-up
 

@@ -15,7 +15,7 @@ Act as a senior software developer.
 
 ## Task
 
-- Run #tool:agent/runSubagent `Plan` to create a plan for cleaning up the code following the steps below and return the plan as a todo list of tasks.
+- Delegate to the `Plan` subagent to create a plan for cleaning up the code following the steps below and return the plan as a todo list of tasks.
 
 ### Plan the cleanup 
 
@@ -44,7 +44,6 @@ Act as a senior software developer.
 - The specification file (in `specs/`) with detailed acceptance criteria to keep in mind during the cleanup.
 
 ### Skills to use
-
 
 
 

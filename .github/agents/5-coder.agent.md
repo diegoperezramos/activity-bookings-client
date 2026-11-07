@@ -28,7 +28,7 @@ Act as a senior software developer.
 - Write unit tests for the implemented code.
   - Ensure unit tests pass successfully.
 
-- Do not write e2e verification tests or documentation at this stage.
+- Do not write UI verification tests or documentation at this stage.
 
 ### Project Progress management 
 
@@ -47,6 +47,6 @@ Read the plan and understand the tasks to complete. Then, implement the tasks in
 
 Apply relevant coding skills based on the technology stack specified in the requirements.
 
-- `coding-type-script`: Best practices for clean and maintainable code in TypeScript
-- `coding-express-api`: Writes API endpoints with Express following layered architecture patterns
-- `testing-unit-vitest`: Writes and maintains unit tests using Vitest. 
+Follow best practices for clean and maintainable TypeScript code and layered Express API endpoints when relevant to the technology stack.
+
+- `testing-unit`: Writes and maintains unit tests using Vitest.

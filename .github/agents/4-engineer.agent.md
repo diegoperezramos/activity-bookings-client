@@ -33,4 +33,3 @@ The provided specification file.
 ### Skills to use
 
 - `planning-specs` : Create a detailed implementation plan.
-- `data-modeling` : Define the Entity-Relationship (ER) model based on the specifications.
