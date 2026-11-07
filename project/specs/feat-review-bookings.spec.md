@@ -1,6 +1,6 @@
 # Review Bookings Specification
 - **Type**: feat
-- **Status**: Implemented
+- **Status**: Released
 
 ## Problem Description
 
