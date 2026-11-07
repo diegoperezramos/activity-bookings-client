@@ -2,7 +2,7 @@
 name: Architect Orchestrator
 description: Orchestrates PRD analysis, architecture design, and parallel specification drafting through internal worker agents.
 argument-hint: Provide a briefing, PRD, or project context to coordinate analysis, architecture, and specification work.
-model: Copilot Fusion
+model: Auto (copilot)
 tools: [vscode, execute, read, agent, edit, search, web, browser, todo]
 agents: ['1-analyst', '2-architect', '3-product-owner']
 user-invocable: true

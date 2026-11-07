@@ -2,7 +2,7 @@
 name: Analyst
 description: Internal worker that generates or refines the Product Requirements Document (PRD) for the orchestrator.
 argument-hint: Provide an idea, briefing document or the current project to start the analysis.
-model: Copilot Fusion
+model: Auto (copilot)
 tools: ['vscode/askQuestions', 'read', 'execute','agent', 'edit', 'search', 'web', 'todo']
 user-invocable: false
 disable-model-invocation: false

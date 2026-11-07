@@ -2,7 +2,7 @@
 name: Product Owner
 description: Internal worker that writes detailed specifications for features, bug fixes, or enhancements based on the PRD.
 argument-hint: Provide a PRD or explain a requirement to write the specification.
-model: Copilot Fusion
+model: Auto (copilot)
 tools: ['read', 'edit', 'search', 'web', 'agent', 'todo','execute']
 user-invocable: false
 disable-model-invocation: false

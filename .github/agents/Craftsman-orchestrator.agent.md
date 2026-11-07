@@ -2,7 +2,7 @@
 name: Craftsman
 description: Orchestrates creation and maintenance of skills, prompts, and agents to enable the AI driven development workflows.
 argument-hint: Provide a request for a new skill, prompt, or agent, or a maintenance request to update existing ones.
-model: Copilot Fusion
+model: Auto (copilot)
 tools: [vscode, execute, read, agent, edit, search, web, browser, todo]
 agents: []
 ---

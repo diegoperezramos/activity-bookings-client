@@ -3,7 +3,7 @@ name: Builder Orchestrator
 description: Orchestrates planning, implementation, verification, cleanup, and release through internal worker agents.
 target: vscode
 argument-hint: Provide a specification file, plan context, or implementation request to coordinate end-to-end delivery.
-model: Copilot Fusion
+model: Auto (copilot)
 tools: [vscode, execute, read, agent, edit, search, web, browser, todo]
 agents: ['Engineer', 'Coder', 'Tester', 'Cleaner', 'DevOps']
 user-invocable: true
