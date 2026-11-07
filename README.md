@@ -10,6 +10,8 @@ Pasa del Vibe Coding a la Spec-Driven Development.
 API de reservas de actividades implementada en TypeScript y Express.
 
 - **Ejemplo de proyecto**: [activity-bookings-express](https://github.com/Programacion-Inteligente/activity-bookings-express)
+- **Problema de autenticación corregido**: el registro y el login creaban instancias distintas de `UserService`. Cada instancia guardaba su propio índice de emails al arrancar, antes de que `loadAllData()` cargara los usuarios. Por eso, el usuario recién registrado quedaba guardado en el repositorio pero la instancia de login no lo encontraba y respondía `401`. El contador de IDs también podía quedar desactualizado y reutilizar un ID existente.
+- **Solución aplicada**: `UserService` consulta el repositorio compartido para buscar usuarios y comprobar emails duplicados, y obtiene los nuevos IDs de la secuencia del repositorio, que se actualiza al cargar los datos. Así, el login encuentra al usuario recién registrado y no se sobrescriben registros existentes. Una prueba de regresión verifica el orden de carga y el uso de instancias separadas.
 
 ---
 
