@@ -47,7 +47,8 @@ Repeat steps 2.1 to 2.3 until the implementation is verified or a blocker is fou
 ### Step 3: Cleanup, Documentation, and Release
 
 - [ ] Delegate to the `Cleaner` subagent to refine the implementation without changing behavior. This worker may use `Plan` internally for cleanup planning.
-- [ ] Delegate to the `DevOps` subagent to update documentation, versioning, changelogs, and release integration.
+- [ ] Delegate to the `DevOps` subagent to complete the release. Ask it to review and update all relevant documentation (including `AGENTS.md`, `README.md`, `project/ADD.md`, and `CHANGELOG.md` where applicable), create the next version and matching Git tag, integrate the changes into `main`, and push the release commit and tag to the remote.
+- [ ] Require DevOps to use the `releasing-version`, `merging-default`, and `commit-changes` skills, run the relevant verification, and report any blocked release action explicitly. If the current branch is already `main`, it must not attempt to merge `main` into itself.
 
 ### Step 4: Synthesis and Follow-up
 
@@ -59,5 +60,5 @@ Return a concise orchestration summary with:
 - the plan file used or created
 - the branch and implementation status
 - the verification and cleanup results
-- the documentation and release changes
+- the documentation changes, version, tag, integration and push status
 - any blockers or follow-up needed
