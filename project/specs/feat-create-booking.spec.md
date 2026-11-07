@@ -1,6 +1,6 @@
 # Create Activity Booking Specification
 - **Type**: feat
-- **Status**: Draft
+- **Status**: Planned
 
 ## Problem Description
 
