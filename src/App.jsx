@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 
 import { getActivities, getActivityById } from './api/activities';
+import { loginUser, registerUser } from './api/auth';
+import { useAuth } from './auth-context';
 import './App.css';
 
 export function getActivityDetailFields(activity) {
@@ -15,12 +17,55 @@ export function getActivityDetailFields(activity) {
 }
 
 function App() {
+  const { setAccessToken } = useAuth();
   const [activities, setActivities] = useState([]);
   const [listStatus, setListStatus] = useState('loading');
   const [selectedId, setSelectedId] = useState(null);
   const [activity, setActivity] = useState(null);
   const [detailStatus, setDetailStatus] = useState('idle');
   const [detailAttempt, setDetailAttempt] = useState(0);
+  const [authMode, setAuthMode] = useState('login');
+  const [authStatus, setAuthStatus] = useState('idle');
+  const [authMessage, setAuthMessage] = useState('');
+
+  async function submitAuthentication(event) {
+    event.preventDefault();
+    if (authStatus === 'pending') {
+      return;
+    }
+
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get('email');
+    const password = formData.get('password');
+    if (authMode === 'register' && !formData.has('terms')) {
+      return;
+    }
+
+    setAuthStatus('pending');
+    setAuthMessage('');
+    try {
+      const response = authMode === 'register'
+        ? await registerUser({
+          email,
+          username: formData.get('username'),
+          password,
+          terms: true,
+        })
+        : await loginUser({ email, password });
+      setAccessToken(response.accessToken);
+      setAuthStatus('success');
+      setAuthMessage(authMode === 'register' ? 'Account created.' : 'You are signed in.');
+    } catch {
+      setAuthStatus('error');
+      setAuthMessage('Authentication failed. Please try again.');
+    }
+  }
+
+  function changeAuthMode(mode) {
+    setAuthMode(mode);
+    setAuthStatus('idle');
+    setAuthMessage('');
+  }
 
   async function loadActivities() {
     setListStatus('loading');
@@ -89,6 +134,71 @@ function App() {
           <h1 id="app-title">Find your next activity</h1>
           <p className="description">Browse what is coming up and see the details.</p>
         </div>
+
+        <section className="account-section" aria-labelledby="account-title">
+          <div className="section-heading">
+            <h2 id="account-title">Your account</h2>
+            <div className="auth-switch" role="group" aria-label="Account action">
+              <button
+                type="button"
+                aria-pressed={authMode === 'login'}
+                disabled={authStatus === 'pending'}
+                onClick={() => changeAuthMode('login')}
+              >
+                Log in
+              </button>
+              <button
+                type="button"
+                aria-pressed={authMode === 'register'}
+                disabled={authStatus === 'pending'}
+                onClick={() => changeAuthMode('register')}
+              >
+                Create account
+              </button>
+            </div>
+          </div>
+
+          <form className="auth-form" aria-label={authMode === 'register' ? 'Registration' : 'Login'} onSubmit={submitAuthentication}>
+            <label className="auth-field">
+              <span>Email</span>
+              <input name="email" type="email" autoComplete="email" required />
+            </label>
+            {authMode === 'register' && (
+              <label className="auth-field">
+                <span>Username</span>
+                <input name="username" type="text" autoComplete="username" required />
+              </label>
+            )}
+            <label className="auth-field">
+              <span>Password</span>
+              <input
+                name="password"
+                type="password"
+                autoComplete={authMode === 'register' ? 'new-password' : 'current-password'}
+                required
+              />
+            </label>
+            {authMode === 'register' && (
+              <label className="terms-field">
+                <input name="terms" type="checkbox" required />
+                <span>I accept the terms.</span>
+              </label>
+            )}
+            <button className="auth-submit" type="submit" disabled={authStatus === 'pending'}>
+              {authStatus === 'pending'
+                ? (authMode === 'register' ? 'Creating account...' : 'Signing in...')
+                : (authMode === 'register' ? 'Create account' : 'Log in')}
+            </button>
+          </form>
+          {authStatus === 'pending' && (
+            <p className="auth-feedback" role="status">{authMode === 'register' ? 'Creating account...' : 'Signing in...'}</p>
+          )}
+          {(authStatus === 'success' || authStatus === 'error') && (
+            <p className={`auth-feedback ${authStatus === 'error' ? 'auth-feedback--error' : ''}`} role={authStatus === 'error' ? 'alert' : 'status'}>
+              {authMessage}
+            </p>
+          )}
+        </section>
 
         {selectedId === null ? (
           <section className="activity-section" aria-label="Activities">
