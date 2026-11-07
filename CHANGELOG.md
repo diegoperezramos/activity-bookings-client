@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.4.0] - 2026-11-07
+
+### Added
+- Authenticated booking review through `GET /bookings`, preserving API-reported payment status, response order, and loading/error recovery states.
+
 ## [0.3.1] - 2026-11-07
 
 ### Fixed

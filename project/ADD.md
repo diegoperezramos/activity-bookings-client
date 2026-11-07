@@ -31,10 +31,11 @@ reviewing bookings through the external Activity Bookings demo API.
 ## Systems Architecture
 
 The browser application calls the independently run API. Public activity requests do not require
-authentication. Releases 0.1.0, 0.2.0, and 0.3.0 implement FR1 activity discovery, FR2 account
-registration/login, and FR3 participant booking, respectively. Registration and login use the API,
-and the returned `accessToken` is held in React memory and passed to `apiFetch` as `jwt` for
-protected requests. Booking review remains planned. The API, its storage, capacity validation, and
+authentication. Releases 0.1.0, 0.2.0, 0.3.0, and 0.4.0 implement FR1 activity discovery, FR2 account
+registration/login, FR3 participant booking, and FR4 booking review, respectively. Registration and
+login use the API, and the returned `accessToken` is held in React memory and passed to `apiFetch` as
+`jwt` for protected requests. Booking review uses authenticated `GET /bookings` and preserves the
+API response order and reported payment status. The API, its storage, capacity validation, and
 mock payment behavior remain outside this client.
 
 ```mermaid
@@ -47,9 +48,9 @@ flowchart LR
     API --> Payment[API mock payment gateway]
 ```
 
-The client uses `GET /activities`, `GET /activities/:id`, `POST /users`, `POST /login`, and
-`POST /bookings` today; `GET /bookings` remains planned and requires JWT authentication. Booking
-creation sends the selected `activityId` and a positive whole-number `participants` count. The client
+The client uses `GET /activities`, `GET /activities/:id`, `POST /users`, `POST /login`,
+`POST /bookings`, and JWT-protected `GET /bookings`. Booking retrieval uses the authenticated
+in-memory JWT. Booking creation sends the selected `activityId` and a positive whole-number `participants` count. The client
 displays the API-reported result and does not implement capacity checks or payment rules. Registration
 sends `email`, `username`, `password`, and `terms` (true when selected); the API validator expects
 `terms` although the published API README currently names `termsAccepted`. Login sends `email` and
@@ -65,14 +66,14 @@ and `src/api/activities.js` exposes the public activity-list and activity-detail
 
 The implemented flows load `GET /activities` when browsing opens, request
 `GET /activities/:id` when an activity is selected, submit registration/login to the API, and submit
-authenticated bookings through `src/api/bookings.js`. The activity interface handles loading,
-empty, and request-failure states, with retry actions for failed requests. Activity requests are
-public and do not include a JWT. Authentication stores the returned `accessToken` only in React
-memory; protected consumers pass it to `apiFetch` as `jwt`. Booking submission handles pending,
-success, and API error responses without deriving capacity or payment outcomes.
+authenticated bookings and retrieve bookings for review through `src/api/bookings.js`. The activity
+and booking-review interfaces handle loading, empty, and request-failure states, with retry actions
+for failed requests. Activity requests are public and do not include a JWT. Authentication stores the
+returned `accessToken` only in React memory; protected consumers pass it to `apiFetch` as `jwt`.
+Booking submission handles API results without deriving capacity or payment outcomes. Booking review
+requires authentication and preserves API response order and reported payment statuses.
 
-The planned flow is booking-list retrieval and display of API-reported booking/payment status. Do not
-add token persistence, expiry, refresh, or logout behavior.
+Do not add token persistence, expiry, refresh, or logout behavior.
 
 Keep UI state and API error handling proportionate to a training demo. Do not add a backend,
 payment integration, state-management framework, or other packages without a requirement.

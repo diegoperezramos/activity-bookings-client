@@ -68,6 +68,10 @@ button {
   font-size: 0.9rem;
 }
 
+.header-action {
+  font-size: 0.9rem;
+}
+
 .page-content {
   width: min(100% - 48px, 1180px);
   margin: 0 auto;
@@ -251,6 +255,7 @@ h1,
 .activity-item:focus-visible,
 .back-button:focus-visible,
 .text-button:focus-visible,
+.header-action:focus-visible,
 .brand:focus-visible {
   outline: 3px solid #d68a5c;
   outline-offset: 3px;
@@ -316,6 +321,40 @@ h1,
 
 .detail-section {
   max-width: 850px;
+}
+
+.booking-review-section {
+  max-width: 850px;
+}
+
+.booking-review-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.booking-review-item {
+  padding: 20px 0;
+  border-top: 1px solid #dfe4db;
+}
+
+.booking-review-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: 16px 22px;
+  margin: 0;
+}
+
+.booking-review-fields dt {
+  margin-bottom: 6px;
+  color: #66736b;
+  font-size: 0.85rem;
+}
+
+.booking-review-fields dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-weight: 700;
 }
 
 .back-button {

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { getActivities, getActivityById } from './api/activities';
 import { loginUser, registerUser } from './api/auth';
-import { createBooking } from './api/bookings';
+import { createBooking, getBookings } from './api/bookings';
 import { useAuth } from './auth-context';
 import './App.css';
 
@@ -40,6 +40,10 @@ function App() {
   const { accessToken, setAccessToken } = useAuth();
   const [activities, setActivities] = useState([]);
   const [listStatus, setListStatus] = useState('loading');
+  const [isReviewingBookings, setIsReviewingBookings] = useState(false);
+  const [bookings, setBookings] = useState([]);
+  const [bookingsStatus, setBookingsStatus] = useState('idle');
+  const [bookingsAttempt, setBookingsAttempt] = useState(0);
   const [selectedId, setSelectedId] = useState(null);
   const [activity, setActivity] = useState(null);
   const [detailStatus, setDetailStatus] = useState('idle');
@@ -175,7 +179,45 @@ function App() {
     };
   }, [selectedId, detailAttempt]);
 
+  useEffect(() => {
+    if (!isReviewingBookings || !accessToken) {
+      setBookingsStatus('idle');
+      return undefined;
+    }
+
+    let active = true;
+    setBookingsStatus('loading');
+
+    getBookings({ jwt: accessToken })
+      .then((result) => {
+        if (!Array.isArray(result)) {
+          throw new Error('The bookings response must be a list.');
+        }
+        if (active) {
+          setBookings(result);
+          setBookingsStatus('loaded');
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setBookingsStatus('error');
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [isReviewingBookings, accessToken, bookingsAttempt]);
+
+  function openBookingReview() {
+    setSelectedId(null);
+    setActivity(null);
+    setDetailStatus('idle');
+    setIsReviewingBookings(true);
+  }
+
   function returnToActivities() {
+    setIsReviewingBookings(false);
     setSelectedId(null);
     setActivity(null);
     setDetailStatus('idle');
@@ -192,14 +234,20 @@ function App() {
           <span className="brand-mark" aria-hidden="true">A</span>
           <span>Activity Bookings</span>
         </a>
-        <span className="header-note">Explore activities</span>
+        <button className="text-button header-action" type="button" onClick={openBookingReview}>
+          Review bookings
+        </button>
       </header>
 
       <section className="page-content" aria-labelledby="app-title">
         <div className="page-heading">
           <p className="eyebrow">Plan something memorable</p>
-          <h1 id="app-title">Find your next activity</h1>
-          <p className="description">Browse what is coming up and see the details.</p>
+          <h1 id="app-title">{isReviewingBookings ? 'Your bookings' : 'Find your next activity'}</h1>
+          <p className="description">
+            {isReviewingBookings
+              ? 'Review your reservations and payment status.'
+              : 'Browse what is coming up and see the details.'}
+          </p>
         </div>
 
         <section className="account-section" aria-labelledby="account-title">
@@ -268,7 +316,64 @@ function App() {
           )}
         </section>
 
-        {selectedId === null ? (
+        {isReviewingBookings ? (
+          <section className="booking-review-section" aria-label="Booking review">
+            <button className="back-button" type="button" onClick={returnToActivities}>
+              <span aria-hidden="true">&lt;-</span> All activities
+            </button>
+            {!accessToken && (
+              <p className="message" role="status">Sign in to review your bookings.</p>
+            )}
+            {accessToken && bookingsStatus === 'loading' && (
+              <p className="message" role="status">Loading bookings...</p>
+            )}
+            {accessToken && bookingsStatus === 'error' && (
+              <div className="message message--error" role="alert">
+                <p>Bookings could not be loaded.</p>
+                <button
+                  className="text-button"
+                  type="button"
+                  onClick={() => setBookingsAttempt((attempt) => attempt + 1)}
+                >
+                  Try again
+                </button>
+              </div>
+            )}
+            {accessToken && bookingsStatus === 'loaded' && bookings.length === 0 && (
+              <p className="message">You have no bookings yet.</p>
+            )}
+            {accessToken && bookingsStatus === 'loaded' && bookings.length > 0 && (
+              <ol className="booking-review-list" aria-label="Your bookings">
+                {bookings.map((booking) => (
+                  <li className="booking-review-item" key={booking.id}>
+                    <dl className="booking-review-fields">
+                      <div>
+                        <dt>Booking ID</dt>
+                        <dd>{booking.id}</dd>
+                      </div>
+                      <div>
+                        <dt>Activity ID</dt>
+                        <dd>{booking.activityId}</dd>
+                      </div>
+                      <div>
+                        <dt>Participants</dt>
+                        <dd>{booking.participants}</dd>
+                      </div>
+                      <div>
+                        <dt>Created</dt>
+                        <dd>{booking.createdAt}</dd>
+                      </div>
+                      <div>
+                        <dt>Payment status</dt>
+                        <dd>{booking.paymentStatus}</dd>
+                      </div>
+                    </dl>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </section>
+        ) : selectedId === null ? (
           <section className="activity-section" aria-label="Activities">
             <div className="section-heading">
               <h2>Activities</h2>

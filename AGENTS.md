@@ -2,7 +2,7 @@
 
 ## Project Overview
 - Activity Bookings Client is a React web client for the demo Activity Bookings API.
-- FR1 activity discovery, FR2 account registration/login, and FR3 participant booking are implemented; FR4 booking review remains planned.
+- FR1 activity discovery, FR2 account registration/login, FR3 participant booking, and FR4 booking review are implemented.
 - The client is for training and demos, not production use.
 
 ## Technical Implementation
@@ -11,7 +11,7 @@
 - **API:** External Activity Bookings API at `http://localhost:3000` during local development.
 - **Configuration:** Set `VITE_API_URL`; it defaults to `http://localhost:3000`.
 - **Authentication:** Keep the API-returned `accessToken` in React memory and pass it to `apiFetch` as `jwt` for protected requests.
-- Booking creation uses the in-memory access token for protected requests. Do not add token persistence, expiry, refresh, or logout behavior.
+- Booking creation and review use the in-memory access token for protected requests. Do not add token persistence, expiry, refresh, or logout behavior.
 - **Testing:** Vitest, jsdom, and React Testing Library.
 - **Logging:** Use browser `console` methods when needed; add no logging package.
 - Use browser `fetch` for API calls; avoid extra runtime packages without a clear need.
@@ -47,7 +47,9 @@
 │       ├── feat-user-authentication.spec.md
 │       ├── feat-user-authentication.plan.md
 │       ├── feat-create-booking.spec.md
-│       └── feat-create-booking.plan.md
+│       ├── feat-create-booking.plan.md
+│       ├── feat-review-bookings.spec.md
+│       └── feat-review-bookings.plan.md
 ├── activitybookings-cli.briefing.md
 ├── index.html               # Vite application entry document
 ├── .env.example             # Example API URL configuration

@@ -31,13 +31,15 @@ Por supuesto, puedes desarrollarlo con cualquier herramienta de IA que te guste.
 
 ### Current client implementation
 
-This repository implements public activity discovery, account registration/login, and participant
-booking. Users can browse scheduled activities and open details including date, duration, location,
-price, and participant limits. Registration sends `email`, `username`, `password`, and the selected
-`terms` value; login sends `email` and `password`. The API-returned `accessToken` is held in memory
-and passed to `apiFetch` as `jwt` for protected requests. Signed-in users can submit a positive
-whole participant count for a selected activity; the client displays the API response and leaves
-capacity validation and mock payment to the API. Booking review remains planned.
+This repository implements public activity discovery, account registration/login, participant
+booking, and booking review. Users can browse scheduled activities and open details including date,
+duration, location, price, and participant limits. Registration sends `email`, `username`,
+`password`, and the selected `terms` value; login sends `email` and `password`. The API-returned
+`accessToken` is held in memory and passed to `apiFetch` as `jwt` for protected requests. Signed-in
+users can submit a positive whole participant count for a selected activity; the client displays the
+API response and leaves capacity validation and mock payment to the API. They can also review
+bookings through authenticated `GET /bookings`; the client preserves API response order and reported
+payment status.
 
 The API registration validator expects `terms`, although the published API README currently names
 the field `termsAccepted`; this client follows the validator. The client does not persist the token
